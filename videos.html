@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Amazement - All Videos</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .videos-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .videos-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .videos-header h1 {
+            color: #FFD700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 20px #FFD70088;
+        }
+        
+        .videos-header p {
+            color: #fff;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .videos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .video-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            border-color: #FFD700;
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-button:hover {
+            background: #ff0000;
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .video-info {
+            padding: 1.5rem;
+        }
+        
+        .video-title {
+            color: #FFD700;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        
+        .video-description {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #999;
+            font-size: 0.8rem;
+        }
+        
+        .video-date {
+            color: #FFD700;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%);
+            color: #111;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%);
+            box-shadow: 0 4px 20px #FFD70088;
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            text-align: center;
+            color: #FFD700;
+            font-size: 1.2rem;
+            padding: 2rem;
+        }
+        
+        .error {
+            text-align: center;
+            color: #FF6B6B;
+            font-size: 1.2rem;
+            padding: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .videos-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .videos-header h1 {
+                font-size: 2rem;
+            }
+            
+            .videos-page {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-icons">
+            <a href="https://instagram.com/daily_amazement_" target="_blank" class="icon-link" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@dailyamazment" target="_blank" class="icon-link" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <div class="logo-img">
+            <img src="logo.png" alt="Daily Amazement Logo">
+        </div>
+    </header>
+
+    <div class="videos-page">
+        <a href="index.html" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Main Site
+        </a>
+        
+        <div class="videos-header">
+            <p>Discover amazing videos across a range of topics that will leave you wondering how, why and is that possible? You'll be left in a state of amazement asking yourself, but did that really happen.</p>
+        </div>
+        
+        <div id="videos-container">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading videos from Daily Amazement channel via RSS feeds...
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(255, 215, 0, 0.1); border-radius: 15px; border: 1px solid rgba(255, 215, 0, 0.3);">
+            <a href="https://www.youtube.com/@dailyamazment" target="_blank" style="color: #FFD700; text-decoration: none; font-size: 1.3rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s ease;">
+                <i class="fab fa-youtube"></i>
+                Watch more Daily Amazement videos on YouTube
+            </a>
+            <p style="color: #ccc; margin-top: 0.5rem; font-size: 0.9rem;">Subscribe to never miss an amazing video!</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Daily Amazement. All rights reserved.<br>
+            <a href="https://instagram.com/daily_amazement_" target="_blank" style="color:#FFD700;text-decoration:none;font-weight:600;">
+                <i class="fab fa-instagram"></i> @daily_amazement_
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        // Daily Amazement YouTube RSS feed URLs - trying multiple approaches to get more videos
+        const youtubeRssUrls = [
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&max-results=50',
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published&max-results=50',
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=updated&max-results=50',
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ'
+        ];
+        
+        // Fallback videos in case RSS fails
+        const fallbackVideos = [
+            {
+                id: '4FWwHKRkwoU',
+                title: 'Daily Amazement Video 1',
+                description: 'Amazing content from Daily Amazement',
+                date: '2024-01-15'
+            },
+            {
+                id: 'Zs877UXy5_g',
+                title: 'Daily Amazement Video 2', 
+                description: 'Incredible footage that will leave you amazed',
+                date: '2024-01-20'
+            },
+            {
+                id: 'e5BjiDxgUVU',
+                title: 'Daily Amazement Video 3',
+                description: 'You won\'t believe what happens in this video',
+                date: '2024-01-25'
+            },
+            {
+                id: 'dQw4w9WgXcQ',
+                title: 'Daily Amazement Video 4',
+                description: 'This will definitely leave you in amazement',
+                date: '2024-02-01'
+            },
+            {
+                id: '9bZkp7q19f0',
+                title: 'Daily Amazement Video 5',
+                description: 'Another incredible video from our collection',
+                date: '2024-02-05'
+            },
+            {
+                id: 'jNQXAC9IVRw',
+                title: 'Daily Amazement Video 6',
+                description: 'This video will make you question reality',
+                date: '2024-02-10'
+            },
+            {
+                id: 'kQb3Jh9w7Z8',
+                title: 'Daily Amazement Video 7',
+                description: 'Mind-blowing content that will amaze you',
+                date: '2024-02-15'
+            },
+            {
+                id: 'mN2p4q5r6s7',
+                title: 'Daily Amazement Video 8',
+                description: 'Incredible moments captured on camera',
+                date: '2024-02-20'
+            },
+            {
+                id: 'tU9v0w1x2y3',
+                title: 'Daily Amazement Video 9',
+                description: 'You have to see this to believe it',
+                date: '2024-02-25'
+            },
+            {
+                id: 'zA1b2c3d4e5',
+                title: 'Daily Amazement Video 10',
+                description: 'Another amazing video from Daily Amazement',
+                date: '2024-03-01'
+            },
+            {
+                id: 'fG6h7i8j9k0',
+                title: 'Daily Amazement Video 11',
+                description: 'This content will leave you speechless',
+                date: '2024-03-05'
+            },
+            {
+                id: 'lM1n2o3p4q5',
+                title: 'Daily Amazement Video 12',
+                description: 'Incredible footage from around the world',
+                date: '2024-03-10'
+            }
+        ];
+
+        let allVideos = [];
+        let displayedVideos = 12; // Show first 12 videos initially
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function extractVideoId(url) {
+            // Extract video ID from YouTube URL
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function parseRssFeed(xmlText) {
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            const entries = xmlDoc.querySelectorAll('entry');
+            
+            const videos = [];
+            entries.forEach(entry => {
+                const title = entry.querySelector('title')?.textContent || '';
+                const link = entry.querySelector('link')?.getAttribute('href') || '';
+                const published = entry.querySelector('published')?.textContent || '';
+                const videoId = extractVideoId(link);
+                
+                if (videoId) {
+                    videos.push({
+                        id: videoId,
+                        title: title,
+                        description: title, // RSS doesn't include descriptions
+                        date: published
+                    });
+                }
+            });
+            
+            return videos;
+        }
+
+        async function tryRssFeed(url) {
+            try {
+                // Try multiple CORS proxies to increase success rate
+                const proxies = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://cors-anywhere.herokuapp.com/',
+                    'https://thingproxy.freeboard.io/fetch/'
+                ];
+                
+                for (const proxy of proxies) {
+                    try {
+                        const response = await fetch(proxy + encodeURIComponent(url), {
+                            timeout: 5000
+                        });
+                        
+                        if (response.ok) {
+                            const xmlText = await response.text();
+                            const videos = parseRssFeed(xmlText);
+                            if (videos.length > 0) {
+                                console.log(`Successfully loaded ${videos.length} videos from RSS feed`);
+                                return videos;
+                            }
+                        }
+                    } catch (error) {
+                        console.log(`Proxy ${proxy} failed, trying next...`);
+                        continue;
+                    }
+                }
+                
+                return [];
+            } catch (error) {
+                console.log('All RSS feed attempts failed for URL:', url, error);
+                return [];
+            }
+        }
+
+        async function loadVideosFromRSS() {
+            let allRssVideos = [];
+            
+            // Try multiple RSS feed URLs to get more videos
+            for (const url of youtubeRssUrls) {
+                const videos = await tryRssFeed(url);
+                allRssVideos = allRssVideos.concat(videos);
+                
+                // Add a small delay between requests
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+            
+            // Remove duplicates based on video ID
+            const uniqueVideos = allRssVideos.filter((video, index, self) => 
+                index === self.findIndex(v => v.id === video.id)
+            );
+            
+            if (uniqueVideos.length > 0) {
+                console.log(`Total unique videos loaded: ${uniqueVideos.length}`);
+                return uniqueVideos;
+            } else {
+                console.log('No videos from RSS, using fallback videos');
+                return fallbackVideos;
+            }
+        }
+
+        function createVideoCard(video) {
+            const thumbnailUrl = `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`;
+            const fallbackThumbnail = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
+            
+            return `
+                <div class="video-card" onclick="openVideo('${video.id}')">
+                    <div class="video-thumbnail">
+                        <img src="${thumbnailUrl}" 
+                             alt="${video.title}"
+                             onerror="this.src='${fallbackThumbnail}'">
+                        <button class="play-button">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                    <div class="video-info">
+                        <h3 class="video-title">${video.title}</h3>
+                        <p class="video-description">${video.description}</p>
+                        <div class="video-meta">
+                            <span class="video-date">${formatDate(video.date)}</span>
+                            <span>Daily Amazement</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function openVideo(videoId) {
+            // Open video in new tab
+            window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank');
+        }
+
+        function createLoadMoreButton() {
+            return `
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button onclick="loadMoreVideos()" class="subscribe-button" style="background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%); border: none; padding: 12px 30px; border-radius: 30px; color: #111; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-plus"></i>
+                        Load More Videos
+                    </button>
+                    <p style="color: #ccc; margin-top: 0.5rem; font-size: 0.9rem;">
+                        Showing ${Math.min(displayedVideos, allVideos.length)} of ${allVideos.length} videos
+                    </p>
+                </div>
+            `;
+        }
+
+        function loadMoreVideos() {
+            displayedVideos += 12; // Load 12 more videos
+            displayVideos();
+        }
+
+        function displayVideos() {
+            const container = document.getElementById('videos-container');
+            const videosToShow = allVideos.slice(0, displayedVideos);
+            
+            if (videosToShow.length === 0) {
+                container.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No videos found
+                    </div>
+                `;
+                return;
+            }
+
+            const videosHTML = videosToShow.map(video => createVideoCard(video)).join('');
+            
+            let loadMoreButton = '';
+            if (displayedVideos < allVideos.length) {
+                loadMoreButton = createLoadMoreButton();
+            }
+            
+            container.innerHTML = `
+                <div class="videos-grid">
+                    ${videosHTML}
+                </div>
+                ${loadMoreButton}
+            `;
+        }
+
+        async function loadVideos() {
+            const container = document.getElementById('videos-container');
+            
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading videos from Daily Amazement channel via RSS feeds...
+                </div>
+            `;
+            
+            try {
+                allVideos = await loadVideosFromRSS();
+                displayedVideos = 12; // Reset to show first 12
+                displayVideos();
+                
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error loading videos. Using fallback videos.
+                    </div>
+                `;
+                // Use fallback videos
+                allVideos = fallbackVideos;
+                displayedVideos = 12;
+                displayVideos();
+            }
+        }
+
+        // Load videos when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVideos();
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html> 

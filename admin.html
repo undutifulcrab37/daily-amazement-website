@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Amazement - Admin Panel</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .admin-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-section h2 {
+            color: #FFD700;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px #FFD70044;
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .save-btn {
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%);
+            color: #111;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .save-btn:hover {
+            background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%);
+            box-shadow: 0 4px 20px #FFD70088;
+        }
+        
+        .preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .preview img {
+            max-width: 200px;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 0, 0.2);
+            color: #90EE90;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .error-message {
+            background: rgba(255, 0, 0, 0.2);
+            color: #FFB6C1;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .video-input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .video-input-group .form-group {
+            flex: 1;
+        }
+        
+        .remove-video-btn {
+            background: rgba(255, 0, 0, 0.3);
+            color: #FFB6C1;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-video-btn:hover {
+            background: rgba(255, 0, 0, 0.5);
+        }
+        
+        .add-video-btn {
+            background: rgba(0, 255, 0, 0.3);
+            color: #90EE90;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+        
+        .add-video-btn:hover {
+            background: rgba(0, 255, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-img">
+            <img src="logo.png" alt="Daily Amazement Logo">
+        </div>
+        <h1 style="text-align: center; color: #FFD700; margin: 1rem 0;">Admin Panel</h1>
+        <p style="text-align: center; color: #fff; margin: 0.5rem 0; font-size: 1.1rem;">Hi Wippa, Ted & Jack</p>
+        <div style="text-align: center; margin-top: 1rem;">
+            <button onclick="logout()" style="background: rgba(255, 0, 0, 0.3); color: #FFB6C1; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <!-- Prize Image Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-image"></i> Update Prize Image</h2>
+            
+            <!-- File Upload Option -->
+            <div class="form-group">
+                <label for="imageUpload">Upload Image from Computer:</label>
+                <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
+                <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Supported formats: JPG, PNG, GIF, WebP</p>
+            </div>
+            
+            <div style="text-align: center; margin: 1rem 0; color: #ccc;">- OR -</div>
+            
+            <!-- URL Option -->
+            <div class="form-group">
+                <label for="prizeImageUrl">Prize Image URL:</label>
+                <input type="url" id="prizeImageUrl" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label for="prizeImageAlt">Image Alt Text:</label>
+                <input type="text" id="prizeImageAlt" placeholder="Air Jordan XXXVIII">
+            </div>
+            <button class="save-btn" onclick="updatePrizeImage()">Update Prize Image</button>
+            <div class="preview" id="prizeImagePreview">
+                <h4>Current Image:</h4>
+                <img src="https://static.nike.com/a/images/f_auto/dpr_2.0,cs_srgb/h_1029,c_limit/97e43798-a15e-4c10-8ed0-df5ad5899430/jordan-brand-launches-the-air-jordan-xxxviii.jpg" alt="Current Prize">
+            </div>
+            <div class="success-message" id="prizeImageSuccess">Prize image updated successfully!</div>
+            <div class="error-message" id="prizeImageError">Error updating prize image. Please try again.</div>
+        </div>
+
+        <!-- Prize Text Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-edit"></i> Update Prize Description</h2>
+            <div class="form-group">
+                <label for="prizeDescription">Prize Description:</label>
+                <textarea id="prizeDescription" placeholder="Enter the prize description...">Inspired by the straps on the Air Jordan VIII, the Air Jordan XXXVIII sneaker will debut the X-Plate, a new plate technology that helps to keep players' feet secure over the footbed during sharp movements.
+
+The upper features embroidered designs highlighting Michael Jordan's performance in the 1993 championship series.
+
+The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in Jordan Brand history, made from at least 20 percent recycled material by weight.</textarea>
+            </div>
+            <button class="save-btn" onclick="updatePrizeDescription()">Update Prize Description</button>
+            <div class="success-message" id="prizeDescriptionSuccess">Prize description updated successfully!</div>
+            <div class="error-message" id="prizeDescriptionError">Error updating prize description. Please try again.</div>
+        </div>
+
+        <!-- YouTube Videos Section -->
+        <div class="admin-section">
+            <h2><i class="fab fa-youtube"></i> Update Featured Videos</h2>
+            <p style="color: #ccc; margin-bottom: 1rem;">Enter YouTube video URLs or video IDs. The system will automatically extract video IDs from URLs.</p>
+            <div id="videoInputs">
+                <div class="video-input-group">
+                    <div class="form-group">
+                        <label for="video1">Video 1:</label>
+                        <input type="text" id="video1" placeholder="https://www.youtube.com/watch?v=VIDEO_ID or just VIDEO_ID">
+                    </div>
+                    <button class="remove-video-btn" onclick="removeVideo(this)">Remove</button>
+                </div>
+                <div class="video-input-group">
+                    <div class="form-group">
+                        <label for="video2">Video 2:</label>
+                        <input type="text" id="video2" placeholder="https://www.youtube.com/watch?v=VIDEO_ID or just VIDEO_ID">
+                    </div>
+                    <button class="remove-video-btn" onclick="removeVideo(this)">Remove</button>
+                </div>
+                <div class="video-input-group">
+                    <div class="form-group">
+                        <label for="video3">Video 3:</label>
+                        <input type="text" id="video3" placeholder="https://www.youtube.com/watch?v=VIDEO_ID or just VIDEO_ID">
+                    </div>
+                    <button class="remove-video-btn" onclick="removeVideo(this)">Remove</button>
+                </div>
+            </div>
+            <button class="add-video-btn" onclick="addVideoInput()">Add Another Video</button>
+            <button class="save-btn" onclick="updateVideos()">Update Featured Videos</button>
+            <div class="success-message" id="videosSuccess">Featured videos updated successfully!</div>
+            <div class="error-message" id="videosError">Error updating videos. Please try again.</div>
+        </div>
+
+        <!-- Winner Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-trophy"></i> Update Winner</h2>
+            <div class="form-group">
+                <label for="winnerName">Winner Name:</label>
+                <input type="text" id="winnerName" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="winnerYoutube">YouTube Name:</label>
+                <input type="text" id="winnerYoutube" placeholder="@ScoobyBoi78">
+            </div>
+            <button class="save-btn" onclick="updateWinner()">Update Winner</button>
+            <div class="success-message" id="winnerSuccess">Winner updated successfully!</div>
+            <div class="error-message" id="winnerError">Error updating winner. Please try again.</div>
+        </div>
+
+        <!-- Valid Codewords Management Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-key"></i> Valid Codewords Management</h2>
+            <p style="color: #ccc; margin-bottom: 1rem;">Only entries with these codewords will be eligible for the draw.</p>
+            
+            <!-- Add New Codeword -->
+            <div class="form-group">
+                <label for="newCodeword">Add New Valid Codeword:</label>
+                <div style="display: flex; gap: 1rem; align-items: end;">
+                    <input type="text" id="newCodeword" placeholder="Enter codeword from video" style="flex: 1;">
+                    <button class="add-video-btn" id="addCodewordBtn">Add Codeword</button>
+                </div>
+            </div>
+
+            <!-- Valid Codewords List -->
+            <div style="margin-top: 1.5rem;">
+                <h4 style="color: #FFD700;">Valid Codewords: <span id="validCodewordCount">0</span></h4>
+                <div id="validCodewordsList" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.9rem;"></div>
+            </div>
+
+            <div class="success-message" id="codewordSuccess">Codeword updated successfully!</div>
+            <div class="error-message" id="codewordError">Error updating codeword. Please try again.</div>
+        </div>
+
+        <!-- Subscriber Management Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-users"></i> Subscriber Management & Winner Selection</h2>
+            
+            <!-- YouTube Studio Link -->
+            <div class="form-group">
+                <label>Step 1: Export Subscribers from YouTube Studio</label>
+                <div style="margin: 1rem 0;">
+                    <a href="https://studio.youtube.com/channel/UCZ0DFo8W800exk9sTR7kUMQ/analytics/audience" target="_blank" class="save-btn" style="text-decoration: none; display: inline-block;">
+                        <i class="fab fa-youtube"></i> Open YouTube Studio
+                    </a>
+                    <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">
+                        Go to: Analytics → Audience → Export data → Download CSV
+                    </p>
+                </div>
+            </div>
+
+            <!-- CSV Upload -->
+            <div class="form-group">
+                <label for="subscriberCSV">Step 2: Upload Subscriber CSV:</label>
+                <input type="file" id="subscriberCSV" accept=".csv" onchange="handleSubscriberCSV(event)">
+                <p style="color: #ccc; font-size: 0.9rem; margin-top: 0.5rem;">Upload the CSV file exported from YouTube Studio</p>
+            </div>
+
+            <!-- Competition Entries -->
+            <div class="form-group">
+                <label>Step 3: Competition Entries (Auto-loaded from Supabase):</label>
+                <div style="background: rgba(0,255,0,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(0,255,0,0.3); margin-top: 0.5rem;">
+                    <p style="color: #90EE90; margin: 0; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> Competition entries are automatically loaded from your Supabase database
+                    </p>
+                    <p style="color: #ccc; font-size: 0.9rem; margin: 0.5rem 0 0 0;">
+                        All entries submitted through your website form are automatically available here
+                    </p>
+                </div>
+            </div>
+
+            <!-- Manual Entry Addition -->
+            <div class="form-group">
+                <label>Step 4: Add Competition Entry Manually (Optional):</label>
+                <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 0.5rem;">Only use this if you need to add an entry that wasn't submitted through the website</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                    <input type="text" id="entryName" placeholder="Full Name">
+                    <input type="text" id="entryYoutube" placeholder="YouTube Name">
+                    <input type="email" id="entryEmail" placeholder="Email">
+                    <input type="text" id="entryCodeword" placeholder="Codeword">
+                </div>
+                <button class="add-video-btn" id="addManualEntryBtn" style="margin-top: 1rem;">Add Entry</button>
+            </div>
+
+            <!-- Data Display -->
+            <div style="margin-top: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4 style="color: #FFD700;">Subscribers Loaded: <span id="subscriberCount">0</span></h4>
+                        <div id="subscriberList" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.9rem;"></div>
+                    </div>
+                    <div>
+                        <h4 style="color: #FFD700;">Competition Entries: <span id="entryCount">0</span></h4>
+                        <div id="entryList" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; font-size: 0.9rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Valid Entries -->
+            <div style="margin-top: 2rem;">
+                <h4 style="color: #90EE90;">Valid Entries (Subscribers): <span id="validEntryCount">0</span></h4>
+                <div id="validEntryList" style="max-height: 200px; overflow-y: auto; background: rgba(0,255,0,0.1); padding: 1rem; border-radius: 8px; font-size: 0.9rem; border: 1px solid rgba(0,255,0,0.3);"></div>
+            </div>
+
+            <!-- Winner Selection -->
+            <div style="margin-top: 2rem;">
+                <button class="save-btn" onclick="pickRandomWinner()" style="background: linear-gradient(90deg, #FF6B6B 0%, #FF8E8E 100%);">
+                    <i class="fas fa-random"></i> Pick Random Winner from Valid Entries
+                </button>
+                <div id="winnerResult" style="margin-top: 1rem; padding: 1rem; background: rgba(255,215,0,0.2); border-radius: 8px; border: 1px solid #FFD700; display: none;">
+                    <h3 style="color: #FFD700; margin: 0;">🎉 WINNER SELECTED! 🎉</h3>
+                    <div id="winnerDetails" style="color: #fff; margin-top: 0.5rem;"></div>
+                </div>
+            </div>
+
+            <!-- Previous Winners -->
+            <div style="margin-top: 2rem;">
+                <h4 style="color: #FFD700;">Previous Winners (Lifetime): <span id="previousWinnerCount">0</span></h4>
+                <div id="previousWinnerList" style="max-height: 200px; overflow-y: auto; background: rgba(255,215,0,0.1); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,215,0,0.3); font-size: 0.9rem;"></div>
+            </div>
+
+            <div class="success-message" id="subscriberSuccess">Subscribers loaded successfully!</div>
+            <div class="error-message" id="subscriberError">Error loading subscribers. Please try again.</div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Check authentication first
+        function checkAuth() {
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            const loginTime = sessionStorage.getItem('loginTime');
+            
+            // Check if logged in and session is less than 8 hours old
+            if (!isLoggedIn || !loginTime || (Date.now() - loginTime > 8 * 60 * 60 * 1000)) {
+                // Clear any old session data
+                sessionStorage.removeItem('adminLoggedIn');
+                sessionStorage.removeItem('loginTime');
+                
+                // Redirect to login page
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Add logout function
+        function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
+            sessionStorage.removeItem('loginTime');
+            window.location.href = 'admin-login.html';
+        }
+        
+        // Check auth on page load
+        if (!checkAuth()) {
+            // Page will redirect, so stop execution
+            throw new Error('Authentication required');
+        }
+        
+        // Initialize Supabase client
+        const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzdHl5ZGdueWVuanplZWVxcnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NDUzOTAsImV4cCI6MjA2OTMyMTM5MH0.41mI_Fn-S6bptZjK20PjXIMeKy62ScHJftUT3ahdJQ4';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Global variables to store data
+        let subscribers = [];
+        let competitionEntries = [];
+        let validEntries = [];
+        let previousWinners = [];
+        let validCodewords = []; // New: to store valid codewords
+
+        // Load current values on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentValues();
+            loadCompetitionEntries();
+            loadPreviousWinners();
+            loadValidCodewords(); // Load valid codewords on page load
+
+            // Add event listeners after everything is loaded
+            document.getElementById('addCodewordBtn').addEventListener('click', addValidCodeword);
+            document.getElementById('addManualEntryBtn').addEventListener('click', addManualEntry);
+        });
+
+        async function loadCompetitionEntries() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('competition_entries')
+                    .select('*')
+                    .order('submittedAt', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading entries:', error);
+                    return;
+                }
+
+                competitionEntries = data.map(entry => ({
+                    name: `${entry.firstName} ${entry.lastName}`,
+                    youtubeName: entry.youtubeName,
+                    email: entry.email,
+                    codeword: entry.codeword,
+                    submittedAt: entry.submittedAt
+                }));
+
+                updateEntryDisplay();
+                compareEntries();
+                showSuccess('subscriberSuccess');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadPreviousWinners() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('winners')
+                    .select('*')
+                    .order('wonAt', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading winners:', error);
+                    return;
+                }
+
+                previousWinners = data;
+                updatePreviousWinnerDisplay();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadValidCodewords() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('valid_codewords')
+                    .select('*');
+
+                if (error) {
+                    console.error('Error loading valid codewords:', error);
+                    return;
+                }
+
+                validCodewords = data.map(cw => cw.codeword);
+                updateValidCodewordDisplay();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function saveWinner(winner) {
+            try {
+                const { error } = await supabaseClient
+                    .from('winners')
+                    .insert([{
+                        name: winner.name,
+                        youtubeName: winner.youtubeName,
+                        email: winner.email,
+                        codeword: winner.codeword,
+                        wonAt: new Date().toISOString()
+                    }]);
+
+                if (error) {
+                    console.error('Error saving winner:', error);
+                    return false;
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+        }
+
+        function loadCurrentValues() {
+            // Load current winner
+            document.getElementById('winnerName').value = 'John Doe';
+            document.getElementById('winnerYoutube').value = '@ScoobyBoi78';
+            
+            // Load current videos (you can update these manually)
+            document.getElementById('video1').value = '4FWwHKRkwoU';
+            document.getElementById('video2').value = 'Zs877UXy5_g';
+            document.getElementById('video3').value = 'e5BjiDxgUVU';
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                
+                // Update the URL field with the data URL
+                document.getElementById('prizeImageUrl').value = imageUrl;
+                
+                // Update the preview
+                const preview = document.getElementById('prizeImagePreview');
+                preview.innerHTML = `<h4>Uploaded Image Preview:</h4><img src="${imageUrl}" alt="Uploaded Prize">`;
+                
+                // Auto-save the uploaded image
+                localStorage.setItem('prizeImageUrl', imageUrl);
+                localStorage.setItem('prizeImageAlt', file.name);
+                
+                showSuccess('prizeImageSuccess');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function extractVideoId(url) {
+            if (!url) return '';
+            
+            // If it's already just a video ID
+            if (url.length === 11 && !url.includes('/') && !url.includes('=')) {
+                return url;
+            }
+            
+            // Extract from YouTube URL
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : url;
+        }
+
+        function updatePrizeImage() {
+            const imageUrl = document.getElementById('prizeImageUrl').value;
+            const imageAlt = document.getElementById('prizeImageAlt').value;
+            
+            if (!imageUrl) {
+                showError('prizeImageError');
+                return;
+            }
+            
+            // Update the preview
+            const preview = document.getElementById('prizeImagePreview');
+            preview.innerHTML = `<h4>New Image Preview:</h4><img src="${imageUrl}" alt="${imageAlt}">`;
+            
+            // Save to localStorage (in a real app, you'd save to a database)
+            localStorage.setItem('prizeImageUrl', imageUrl);
+            localStorage.setItem('prizeImageAlt', imageAlt);
+            
+            showSuccess('prizeImageSuccess');
+        }
+
+        function updatePrizeDescription() {
+            const description = document.getElementById('prizeDescription').value;
+            
+            if (!description) {
+                showError('prizeDescriptionError');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('prizeDescription', description);
+            
+            showSuccess('prizeDescriptionSuccess');
+        }
+
+        function updateVideos() {
+            const videoInputs = document.querySelectorAll('#videoInputs input');
+            const videos = [];
+            
+            videoInputs.forEach(input => {
+                const videoId = extractVideoId(input.value);
+                if (videoId) {
+                    videos.push(videoId);
+                }
+            });
+            
+            if (videos.length === 0) {
+                showError('videosError');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('featuredVideos', JSON.stringify(videos));
+            
+            showSuccess('videosSuccess');
+        }
+
+        function updateWinner() {
+            const name = document.getElementById('winnerName').value;
+            const youtube = document.getElementById('winnerYoutube').value;
+            
+            if (!name || !youtube) {
+                showError('winnerError');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('winnerName', name);
+            localStorage.setItem('winnerYoutube', youtube);
+            
+            showSuccess('winnerSuccess');
+        }
+
+        function addValidCodeword() {
+            // Ensure validCodewords is initialized
+            if (typeof validCodewords === 'undefined') {
+                validCodewords = [];
+            }
+            
+            const newCodeword = document.getElementById('newCodeword').value.trim();
+            if (!newCodeword) {
+                alert('Please enter a codeword.');
+                return;
+            }
+
+            if (validCodewords.includes(newCodeword)) {
+                alert('This codeword is already in the list.');
+                return;
+            }
+
+            validCodewords.push(newCodeword);
+            updateValidCodewordDisplay();
+            showSuccess('codewordSuccess');
+
+            // Save to database
+            supabaseClient.from('valid_codewords').insert([{ codeword: newCodeword }]);
+        }
+
+        function removeValidCodeword(codeword) {
+            // Ensure validCodewords is initialized
+            if (typeof validCodewords === 'undefined') {
+                validCodewords = [];
+            }
+            
+            const index = validCodewords.indexOf(codeword);
+            if (index > -1) {
+                validCodewords.splice(index, 1);
+                updateValidCodewordDisplay();
+                showSuccess('codewordSuccess');
+
+                // Delete from database
+                supabaseClient.from('valid_codewords').delete().eq('codeword', codeword);
+            }
+        }
+
+        function updateValidCodewordDisplay() {
+            document.getElementById('validCodewordCount').textContent = validCodewords.length;
+            const list = document.getElementById('validCodewordsList');
+            list.innerHTML = ''; // Clear previous content
+
+            if (validCodewords.length === 0) {
+                list.innerHTML = '<p style="color: #ccc;">No valid codewords added yet.</p>';
+                return;
+            }
+
+            validCodewords.forEach(codeword => {
+                list.innerHTML += `<div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${codeword}</span>
+                    <button class="remove-video-btn" onclick="removeValidCodeword('${codeword}')"><i class="fas fa-times"></i></button>
+                </div>`;
+            });
+        }
+
+        function addVideoInput() {
+            const container = document.getElementById('videoInputs');
+            const videoCount = container.children.length + 1;
+            
+            const newGroup = document.createElement('div');
+            newGroup.className = 'video-input-group';
+            newGroup.innerHTML = `
+                <div class="form-group">
+                    <label for="video${videoCount}">Video ${videoCount}:</label>
+                    <input type="text" id="video${videoCount}" placeholder="https://www.youtube.com/watch?v=VIDEO_ID or just VIDEO_ID">
+                </div>
+                <button class="remove-video-btn" onclick="removeVideo(this)">Remove</button>
+            `;
+            
+            container.appendChild(newGroup);
+        }
+
+        function removeVideo(button) {
+            const container = document.getElementById('videoInputs');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+        function showSuccess(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function handleSubscriberCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csv = e.target.result;
+                const lines = csv.split('\n');
+                const headers = lines[0].split(',');
+                
+                subscribers = [];
+                for (let i = 1; i < lines.length; i++) {
+                    if (lines[i].trim()) {
+                        const values = lines[i].split(',');
+                        const subscriber = {
+                            name: values[0]?.trim() || '',
+                            youtubeName: values[1]?.trim() || '',
+                            email: values[2]?.trim() || ''
+                        };
+                        subscribers.push(subscriber);
+                    }
+                }
+                
+                updateSubscriberDisplay();
+                compareEntries();
+                showSuccess('subscriberSuccess');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function addManualEntry() {
+            const name = document.getElementById('entryName').value;
+            const youtubeName = document.getElementById('entryYoutube').value;
+            const email = document.getElementById('entryEmail').value;
+            const codeword = document.getElementById('entryCodeword').value;
+            
+            if (!name || !youtubeName || !email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const entry = { name, youtubeName, email, codeword };
+            competitionEntries.push(entry);
+            
+            // Clear form
+            document.getElementById('entryName').value = '';
+            document.getElementById('entryYoutube').value = '';
+            document.getElementById('entryEmail').value = '';
+            document.getElementById('entryCodeword').value = '';
+            
+            updateEntryDisplay();
+            compareEntries();
+            showSuccess('subscriberSuccess');
+        }
+
+        function updateSubscriberDisplay() {
+            document.getElementById('subscriberCount').textContent = subscribers.length;
+            const list = document.getElementById('subscriberList');
+            
+            if (subscribers.length === 0) {
+                list.innerHTML = '<p style="color: #ccc;">No subscribers loaded</p>';
+                return;
+            }
+            
+            let html = '';
+            subscribers.slice(0, 10).forEach(sub => {
+                html += `<div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>${sub.name}</strong><br>
+                    <small>${sub.youtubeName}</small>
+                </div>`;
+            });
+            
+            if (subscribers.length > 10) {
+                html += `<p style="color: #ccc; font-size: 0.8rem;">... and ${subscribers.length - 10} more</p>`;
+            }
+            
+            list.innerHTML = html;
+        }
+
+        function updateEntryDisplay() {
+            document.getElementById('entryCount').textContent = competitionEntries.length;
+            const list = document.getElementById('entryList');
+            
+            if (competitionEntries.length === 0) {
+                list.innerHTML = '<p style="color: #ccc;">No entries found in Supabase database</p>';
+                return;
+            }
+            
+            // Group entries by email to show multiple entries per person
+            const entriesByEmail = {};
+            competitionEntries.forEach(entry => {
+                if (!entriesByEmail[entry.email]) {
+                    entriesByEmail[entry.email] = [];
+                }
+                entriesByEmail[entry.email].push(entry);
+            });
+            
+            let html = '';
+            let displayCount = 0;
+            const maxDisplay = 10;
+            
+            Object.entries(entriesByEmail).forEach(([email, entries]) => {
+                if (displayCount >= maxDisplay) return;
+                
+                html += `<div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>${entries[0].name}</strong> (${entries.length} entry${entries.length > 1 ? 'ies' : 'y'})<br>
+                    <small>${entries[0].youtubeName} | ${email}</small><br>
+                    <small style="color: #FFD700;">Codewords: ${entries.map(e => e.codeword).join(', ')}</small>
+                </div>`;
+                displayCount++;
+            });
+            
+            const totalPeople = Object.keys(entriesByEmail).length;
+            if (totalPeople > maxDisplay) {
+                html += `<p style="color: #ccc; font-size: 0.8rem;">... and ${totalPeople - maxDisplay} more people</p>`;
+            }
+            
+            list.innerHTML = html;
+        }
+
+        function compareEntries() {
+            validEntries = [];
+            
+            competitionEntries.forEach(entry => {
+                // Check if entry's YouTube name matches any subscriber
+                const isSubscriber = subscribers.some(sub => 
+                    sub.youtubeName.toLowerCase().includes(entry.youtubeName.toLowerCase()) ||
+                    entry.youtubeName.toLowerCase().includes(sub.youtubeName.toLowerCase())
+                );
+                
+                // Check if entry's codeword is valid
+                const isValidCodeword = validCodewords.includes(entry.codeword);
+
+                if (isSubscriber && isValidCodeword) {
+                    validEntries.push(entry);
+                }
+            });
+            
+            updateValidEntryDisplay();
+        }
+
+        function updateValidEntryDisplay() {
+            document.getElementById('validEntryCount').textContent = validEntries.length;
+            const list = document.getElementById('validEntryList');
+            
+            if (validEntries.length === 0) {
+                list.innerHTML = '<p style="color: #ccc;">No valid entries found. Make sure you have loaded subscribers and added valid codewords.</p>';
+                return;
+            }
+            
+            let html = '';
+            validEntries.forEach(entry => {
+                const isValidCodeword = validCodewords.includes(entry.codeword);
+                const codewordStatus = isValidCodeword ? 
+                    `<span style="color: #90EE90;">✓ Valid: ${entry.codeword}</span>` : 
+                    `<span style="color: #FFB6C1;">✗ Invalid: ${entry.codeword}</span>`;
+                
+                html += `<div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(0,255,0,0.2); border-radius: 4px; border: 1px solid rgba(0,255,0,0.3);">
+                    <strong>${entry.name}</strong><br>
+                    <small>${entry.youtubeName} | ${entry.email}</small><br>
+                    <small>${codewordStatus}</small>
+                </div>`;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function updatePreviousWinnerDisplay() {
+            document.getElementById('previousWinnerCount').textContent = previousWinners.length;
+            const list = document.getElementById('previousWinnerList');
+
+            if (previousWinners.length === 0) {
+                list.innerHTML = '<p style="color: #ccc;">No previous winners found.</p>';
+                return;
+            }
+
+            let html = '';
+            previousWinners.slice(0, 10).forEach(winner => {
+                html += `<div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <strong>${winner.name}</strong><br>
+                    <small>${winner.youtubeName} | ${winner.email} (Codeword: ${winner.codeword})</small>
+                </div>`;
+            });
+
+            if (previousWinners.length > 10) {
+                html += `<p style="color: #ccc; font-size: 0.8rem;">... and ${previousWinners.length - 10} more</p>`;
+            }
+
+            list.innerHTML = html;
+        }
+
+        function pickRandomWinner() {
+            if (validEntries.length === 0) {
+                alert('No valid entries found. Please load subscribers and competition entries first.');
+                return;
+            }
+            
+            // Filter out previous winners
+            const eligibleEntries = validEntries.filter(entry => {
+                return !previousWinners.some(winner => 
+                    winner.email === entry.email || 
+                    winner.youtubeName.toLowerCase() === entry.youtubeName.toLowerCase()
+                );
+            });
+            
+            if (eligibleEntries.length === 0) {
+                alert('No eligible entries found. All valid entries have already won in previous competitions.');
+                return;
+            }
+            
+            // For fair selection, if someone has multiple entries, they get multiple chances
+            // But we still select from individual entries, not people
+            const randomIndex = Math.floor(Math.random() * eligibleEntries.length);
+            const winner = eligibleEntries[randomIndex];
+            
+            // Update the winner display
+            document.getElementById('winnerDetails').innerHTML = `
+                <strong>Name:</strong> ${winner.name}<br>
+                <strong>YouTube:</strong> ${winner.youtubeName}<br>
+                <strong>Email:</strong> ${winner.email}<br>
+                <strong>Codeword:</strong> ${winner.codeword}<br>
+                <strong>Eligible Entries:</strong> ${eligibleEntries.length} out of ${validEntries.length} valid entries<br>
+                <strong>Total People:</strong> ${new Set(eligibleEntries.map(e => e.email)).size} unique participants
+            `;
+            
+            document.getElementById('winnerResult').style.display = 'block';
+            
+            // Auto-update the winner fields
+            document.getElementById('winnerName').value = winner.name;
+            document.getElementById('winnerYoutube').value = winner.youtubeName;
+            
+            // Save to localStorage
+            localStorage.setItem('winnerName', winner.name);
+            localStorage.setItem('winnerYoutube', winner.youtubeName);
+            
+            // Save winner to database
+            saveWinner(winner).then(success => {
+                if (success) {
+                    showSuccess('winnerSuccess');
+                    // Reload previous winners to update the list
+                    loadPreviousWinners();
+                } else {
+                    showError('winnerError');
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

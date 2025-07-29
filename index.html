@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Amazement</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-icons">
+            <a href="videos.html" class="icon-link" aria-label="All Videos" title="View All Videos">
+                <i class="fas fa-video"></i>
+            </a>
+            <a href="https://instagram.com/daily_amazement_" target="_blank" class="icon-link" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <a href="https://www.youtube.com/@dailyamazment" target="_blank" class="icon-link" aria-label="YouTube">
+                <i class="fab fa-youtube"></i>
+            </a>
+        </div>
+        <div class="logo-img">
+            <img src="logo.png" alt="Daily Amazement Logo">
+        </div>
+        <div class="description-text">
+            Daily Amazement delivers amazing videos across a range of topics that will leave you wondering how, why and is that possible? You'll be left in a state of amazement asking yourself, but did that really happen. YES it did, and we make sure you get to see all the details.
+            <br><br>
+            <a href="https://www.youtube.com/@dailyamazment" target="_blank" class="subscribe-button">
+                <i class="fab fa-youtube"></i>
+                Subscribe
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="form-section">
+            <h2>Youtube Subscribers Win Big</h2>
+            <p class="description-text">Want to win our monthly prize? Subscribe to our Youtube channel and fill out the below to be in with a shot!</p>
+            <form class="subscriber-form">
+                <div class="form-group">
+                    <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="youtubeName" name="youtubeName" placeholder="YouTube Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="codeword" name="codeword" placeholder="Codeword from Youtube video" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email" name="email" placeholder="Email Address" required>
+                </div>
+                <button type="submit" class="enter-button">Enter</button>
+            </form>
+            
+            <!-- Success Message -->
+            <div id="success-message" style="display: none; background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3); border-radius: 10px; padding: 2rem; margin-top: 2rem; text-align: center;">
+                <i class="fas fa-check-circle" style="color: #90EE90; font-size: 3rem; margin-bottom: 1rem;"></i>
+                <h3 style="color: #90EE90; margin-bottom: 1rem;">Thanks for your entry!</h3>
+                <p style="color: #fff; margin-bottom: 1rem; line-height: 1.6;">
+                    We'll contact the winner directly. Don't forget, you can enter each codeword you come across so keep watching Daily Amazement for another chance to win!
+                </p>
+                <div style="margin-top: 1.5rem;">
+                    <a href="https://www.youtube.com/@dailyamazment" target="_blank" class="subscribe-button" style="text-decoration: none; display: inline-block; margin-right: 1rem;">
+                        <i class="fab fa-youtube"></i>
+                        Continue Watching Daily Amazement
+                    </a>
+                    <button onclick="hideSuccessMessage()" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); padding: 10px 20px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease;">
+                        Enter Another Codeword
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="prize-section">
+            <h2>This Month's Prize...</h2>
+            <div class="prize-image">
+                <img src="https://static.nike.com/a/images/f_auto/dpr_2.0,cs_srgb/h_1029,c_limit/97e43798-a15e-4c10-8ed0-df5ad5899430/jordan-brand-launches-the-air-jordan-xxxviii.jpg" alt="Air Jordan XXXVIII">
+            </div>
+            <p class="prize-description">
+                Inspired by the straps on the Air Jordan VIII, the Air Jordan XXXVIII sneaker will debut the X-Plate, a new plate technology that helps to keep players' feet secure over the footbed during sharp movements.<br>
+                The upper features embroidered designs highlighting Michael Jordan's performance in the 1993 championship series.<br>
+                The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in Jordan Brand history, made from at least 20 percent recycled material by weight.
+            </p>
+            <div class="winner-section">
+                <h2>Most Recent Winner</h2>
+                <div id="winner-name">John Doe<br>Youtube name: @ScoobyBoi78</div>
+            </div>
+        </section>
+
+        <section class="videos-section">
+            <h2>Featured Videos</h2>
+            <div id="video-container">
+                <!-- YouTube videos will be added here -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="videos.html" class="subscribe-button" style="text-decoration: none; display: inline-block;">
+                    <i class="fas fa-video"></i>
+                    See More Videos
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Daily Amazement. All rights reserved.<br>
+            <a href="https://instagram.com/daily_amazement_" target="_blank" style="color:#FFD700;text-decoration:none;font-weight:600;">
+                <i class="fab fa-instagram"></i> @daily_amazement_
+            </a>
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzdHl5ZGdueWVuanplZWVxcnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NDUzOTAsImV4cCI6MjA2OTMyMTM5MH0.41mI_Fn-S6bptZjK20PjXIMeKy62ScHJftUT3ahdJQ4';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Handle form submission
+        document.querySelector('.subscriber-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('Form submitted!');
+            
+            const formData = {
+                firstname: document.getElementById('firstName').value,
+                lastname: document.getElementById('lastName').value,
+                youtubename: document.getElementById('youtubeName').value,
+                codeword: document.getElementById('codeword').value,
+                email: document.getElementById('email').value,
+                submittedat: new Date().toISOString()
+            };
+
+            console.log('Form data:', formData);
+
+            try {
+                console.log('Attempting to insert entry directly...');
+                // Insert new entry directly without checking for existing
+                const { data, error } = await supabaseClient
+                    .from('competition_entries')
+                    .insert([formData]);
+
+                if (error) {
+                    console.error('Error saving entry:', error);
+                    console.error('Error details:', JSON.stringify(error, null, 2));
+                    alert('Error submitting entry. Please try again.');
+                    return;
+                }
+
+                console.log('Entry saved successfully!', data);
+                // Show success message
+                showSuccessMessage();
+                document.querySelector('.subscriber-form').reset();
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting entry. Please try again.');
+            }
+        });
+
+        // Test function to manually show success message
+        function testSuccessMessage() {
+            console.log('Testing success message...');
+            showSuccessMessage();
+        }
+
+        // Add a test button to the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - form ready to submit entries!');
+            // Test button removed - form is working properly now
+        });
+
+        // Function to show success message
+        function showSuccessMessage() {
+            console.log('showSuccessMessage called');
+            const successElement = document.getElementById('success-message');
+            console.log('Success element:', successElement);
+            successElement.style.display = 'block';
+            console.log('Success message should now be visible');
+            // Scroll to the success message
+            successElement.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Function to hide success message
+        function hideSuccessMessage() {
+            console.log('hideSuccessMessage called');
+            document.getElementById('success-message').style.display = 'none';
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,19 @@
+{
+  "name": "daily-amazement-website",
+  "version": "1.0.0",
+  "description": "Daily Amazement website with competition entry form",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/index.html",
+    "start": "live-server --port=3000"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "keywords": ["website", "competition", "youtube"],
+  "author": "Daily Amazement",
+  "license": "MIT"
+} 
