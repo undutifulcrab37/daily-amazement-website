@@ -37,9 +37,9 @@ const fallbackVideos = [
     '4FWwHKRkwoU',
     'Zs877UXy5_g',
     'e5BjiDxgUVU',
-    'tU9v0w1x2y3',
-    'zA1b2c3d4e5',
-    'fG6h7i8j9k0'
+    'dQw4w9WgXcQ',
+    'kJQP7kiw5Fk',
+    'y6120QOlsfU'
 ];
 
 function extractVideoId(url) {
