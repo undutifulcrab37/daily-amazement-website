@@ -173,76 +173,90 @@
         // Handle form submission
         document.querySelector('.subscriber-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            console.log('Form submitted!');
+            console.log('🚀 Form submitted!');
             
-            // Get form values
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const youtubeName = document.getElementById('youtubeName').value.trim();
-            const codeword = document.getElementById('codeword').value.trim();
-            const email = document.getElementById('email').value.trim();
+            // Disable submit button to prevent double submission
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
             
-            // Basic validation
-            if (!firstName || !lastName || !youtubeName || !codeword || !email) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-            
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-            
-            const formData = {
-                firstName: firstName,
-                lastName: lastName,
-                youtubeName: youtubeName,
-                codeword: codeword,
-                email: email,
-                submittedAt: new Date().toISOString()
-            };
-
-            console.log('Form data:', formData);
-            console.log('Supabase client:', supabaseClient);
-
-            // Check if Supabase client is available
-            if (!supabaseClient) {
-                alert('Database connection not available. Please refresh the page and try again.');
-                return;
-            }
-
             try {
-                console.log('Attempting to insert entry...');
+                // Get form values
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const youtubeName = document.getElementById('youtubeName').value.trim();
+                const codeword = document.getElementById('codeword').value.trim();
+                const email = document.getElementById('email').value.trim();
+                
+                console.log('📝 Form values collected:', { firstName, lastName, youtubeName, codeword, email });
+                
+                // Basic validation
+                if (!firstName || !lastName || !youtubeName || !codeword || !email) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Email validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                
+                const formData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    youtubeName: youtubeName,
+                    codeword: codeword,
+                    email: email,
+                    submittedAt: new Date().toISOString()
+                };
+
+                console.log('📊 Form data prepared:', formData);
+                console.log('🔌 Supabase client status:', supabaseClient ? 'Available' : 'Not available');
+
+                // Check if Supabase client is available
+                if (!supabaseClient) {
+                    alert('Database connection not available. Please refresh the page and try again.');
+                    return;
+                }
+
+                console.log('🚀 Attempting to insert entry into database...');
+                
                 // Insert new entry
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .insert([formData]);
 
                 if (error) {
-                    console.error('Error saving entry:', error);
-                    console.error('Error details:', JSON.stringify(error, null, 2));
+                    console.error('❌ Error saving entry:', error);
+                    console.error('📋 Error details:', JSON.stringify(error, null, 2));
                     
                     // More specific error messages
                     if (error.code === '23505') {
                         alert('You have already submitted an entry with this email and codeword combination. Please use a different codeword or email.');
                     } else if (error.message) {
-                        alert(`Error: ${error.message}`);
+                        alert(`Database Error: ${error.message}`);
                     } else {
                         alert('Error submitting entry. Please try again.');
                     }
                     return;
                 }
 
-                console.log('Entry saved successfully!', data);
+                console.log('✅ Entry saved successfully!', data);
                 // Show success message
                 showSuccessMessage();
                 document.querySelector('.subscriber-form').reset();
 
             } catch (error) {
-                console.error('Unexpected error:', error);
-                alert('An unexpected error occurred. Please try again or contact support.');
+                console.error('💥 Unexpected error:', error);
+                console.error('🔍 Error stack:', error.stack);
+                alert(`An unexpected error occurred: ${error.message}. Please try again or contact support.`);
+            } finally {
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
             }
         });
 
@@ -263,19 +277,25 @@
         // Test Supabase connection
         async function testSupabaseConnection() {
             try {
-                console.log('Testing Supabase connection...');
+                console.log('🔄 Testing Supabase connection...');
+                console.log('📡 Supabase URL:', supabaseUrl);
+                console.log('🔑 Supabase Key (first 20 chars):', supabaseKey.substring(0, 20) + '...');
+                
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .select('count')
                     .limit(1);
                 
                 if (error) {
-                    console.error('Supabase connection test failed:', error);
+                    console.error('❌ Supabase connection test failed:', error);
+                    console.error('📋 Connection error details:', JSON.stringify(error, null, 2));
                 } else {
-                    console.log('Supabase connection successful!');
+                    console.log('✅ Supabase connection successful!');
+                    console.log('📊 Test query result:', data);
                 }
             } catch (error) {
-                console.error('Supabase connection test error:', error);
+                console.error('💥 Supabase connection test error:', error);
+                console.error('🔍 Connection error stack:', error.stack);
             }
         }
 
