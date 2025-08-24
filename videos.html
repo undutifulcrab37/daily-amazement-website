@@ -516,6 +516,30 @@
             `;
             
             try {
+                // First check if admin has set featured videos
+                const featuredVideos = localStorage.getItem('featuredVideos');
+                if (featuredVideos) {
+                    try {
+                        const adminVideoIds = JSON.parse(featuredVideos);
+                        if (adminVideoIds && adminVideoIds.length >= 6) {
+                            // Use admin-selected videos
+                            allVideos = adminVideoIds.map((id, index) => ({
+                                id: id,
+                                title: `Daily Amazement Video ${index + 1}`,
+                                description: 'Amazing content that will leave you speechless',
+                                date: new Date().toISOString()
+                            }));
+                            console.log('✅ Using admin-selected videos for videos page');
+                            displayedVideos = 6;
+                            displayVideos();
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error parsing admin videos:', error);
+                    }
+                }
+                
+                // If no admin videos or less than 6, load from RSS
                 allVideos = await loadVideosFromRSS();
                 displayedVideos = 6; // Reset to show first 6 videos to meet minimum requirement
                 displayVideos();

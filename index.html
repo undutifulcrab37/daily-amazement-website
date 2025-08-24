@@ -270,6 +270,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded - form ready to submit entries!');
             
+            // Load admin-updated content
+            loadAdminContent();
+            
             // Test Supabase connection
             testSupabaseConnection();
         });
@@ -314,6 +317,70 @@
         function hideSuccessMessage() {
             console.log('hideSuccessMessage called');
             document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Function to load admin-updated content
+        function loadAdminContent() {
+            console.log('🔄 Loading admin-updated content...');
+            
+            // Load prize image
+            const prizeImageUrl = localStorage.getItem('prizeImageUrl');
+            const prizeImageAlt = localStorage.getItem('prizeImageAlt');
+            if (prizeImageUrl) {
+                const prizeImg = document.querySelector('.prize-image img');
+                if (prizeImg) {
+                    prizeImg.src = prizeImageUrl;
+                    if (prizeImageAlt) {
+                        prizeImg.alt = prizeImageAlt;
+                    }
+                    console.log('✅ Prize image updated from admin');
+                }
+            }
+            
+            // Load prize description
+            const prizeDescription = localStorage.getItem('prizeDescription');
+            if (prizeDescription) {
+                const descElement = document.querySelector('.prize-description');
+                if (descElement) {
+                    descElement.innerHTML = prizeDescription.replace(/\n/g, '<br>');
+                    console.log('✅ Prize description updated from admin');
+                }
+            }
+            
+            // Load winner information
+            const winnerName = localStorage.getItem('winnerName');
+            const winnerYoutube = localStorage.getItem('winnerYoutube');
+            if (winnerName && winnerYoutube) {
+                const winnerElement = document.getElementById('winner-name');
+                if (winnerElement) {
+                    winnerElement.innerHTML = `${winnerName}<br>Youtube name: ${winnerYoutube}`;
+                    console.log('✅ Winner information updated from admin');
+                }
+            }
+            
+            // Load featured videos
+            const featuredVideos = localStorage.getItem('featuredVideos');
+            if (featuredVideos) {
+                try {
+                    const videoIds = JSON.parse(featuredVideos);
+                    if (videoIds && videoIds.length >= 3) {
+                        // Clear existing videos and add admin-selected ones
+                        const videoContainer = document.getElementById('video-container');
+                        if (videoContainer) {
+                            videoContainer.innerHTML = '';
+                            // Use first 3 videos for main site
+                            videoIds.slice(0, 3).forEach(videoId => {
+                                if (typeof addVideo === 'function') {
+                                    addVideo(videoId);
+                                }
+                            });
+                            console.log('✅ Featured videos updated from admin');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading featured videos:', error);
+                }
+            }
         }
     </script>
 </body>
