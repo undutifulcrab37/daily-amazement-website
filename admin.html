@@ -438,14 +438,34 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
 
         // Load current values on page load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Admin panel loading...');
+            
             loadCurrentValues();
             loadCompetitionEntries();
             loadPreviousWinners();
             loadValidCodewords(); // Load valid codewords on page load
 
             // Add event listeners after everything is loaded
-            document.getElementById('addCodewordBtn').addEventListener('click', addValidCodeword);
-            document.getElementById('addManualEntryBtn').addEventListener('click', addManualEntry);
+            document.getElementById('addCodewordBtn').addEventListener('click', function() {
+                console.log('🔘 Add Codeword button clicked');
+                addValidCodeword();
+            });
+            
+            document.getElementById('addManualEntryBtn').addEventListener('click', function() {
+                console.log('🔘 Add Manual Entry button clicked');
+                addManualEntry();
+            });
+            
+            // Add Enter key support for codeword input
+            document.getElementById('newCodeword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    console.log('⌨️ Enter key pressed in codeword field');
+                    e.preventDefault();
+                    addValidCodeword();
+                }
+            });
+            
+            console.log('✅ Admin panel loaded and event listeners attached');
         });
 
         async function loadCompetitionEntries() {
@@ -773,33 +793,43 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         }
 
         async function addValidCodeword() {
+            console.log('🔄 addValidCodeword function called');
+            
             // Ensure validCodewords is initialized
             if (typeof validCodewords === 'undefined') {
                 validCodewords = [];
             }
             
             const newCodeword = document.getElementById('newCodeword').value.trim();
+            console.log('📝 Input value:', newCodeword);
+            
             if (!newCodeword) {
+                console.log('❌ No codeword entered');
                 alert('Please enter a codeword.');
                 return;
             }
 
             if (validCodewords.includes(newCodeword)) {
+                console.log('❌ Codeword already exists');
                 alert('This codeword is already in the list.');
                 return;
             }
 
             try {
+                console.log('💾 Attempting to save to database...');
+                
                 // Save to database first
                 const { error } = await supabaseClient
                     .from('valid_codewords')
                     .insert([{ codeword: newCodeword }]);
 
                 if (error) {
-                    console.error('Error saving codeword:', error);
+                    console.error('❌ Database error:', error);
                     showError('codewordError');
                     return;
                 }
+
+                console.log('✅ Database save successful');
 
                 // Update local array and display
                 validCodewords.push(newCodeword);
@@ -810,8 +840,9 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 document.getElementById('newCodeword').value = '';
                 
                 console.log('✅ Codeword added successfully:', newCodeword);
+                console.log('📊 Current valid codewords:', validCodewords);
             } catch (error) {
-                console.error('Error adding codeword:', error);
+                console.error('💥 Unexpected error adding codeword:', error);
                 showError('codewordError');
             }
         }
@@ -903,19 +934,33 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         }
 
         function showSuccess(elementId) {
+            console.log('✅ Showing success message for:', elementId);
             const element = document.getElementById(elementId);
-            element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
+            if (element) {
+                element.style.display = 'block';
+                console.log('✅ Success message displayed');
+                setTimeout(() => {
+                    element.style.display = 'none';
+                    console.log('✅ Success message hidden');
+                }, 3000);
+            } else {
+                console.error('❌ Success element not found:', elementId);
+            }
         }
 
         function showError(elementId) {
+            console.log('❌ Showing error message for:', elementId);
             const element = document.getElementById(elementId);
-            element.style.display = 'block';
-            setTimeout(() => {
-                element.style.display = 'none';
-            }, 3000);
+            if (element) {
+                element.style.display = 'block';
+                console.log('❌ Error message displayed');
+                setTimeout(() => {
+                    element.style.display = 'none';
+                    console.log('❌ Error message hidden');
+                }, 3000);
+            } else {
+                console.error('❌ Error element not found:', elementId);
+            }
         }
 
         function handleSubscriberCSV(event) {
