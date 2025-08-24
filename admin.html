@@ -772,7 +772,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             }
         }
 
-        function addValidCodeword() {
+        async function addValidCodeword() {
             // Ensure validCodewords is initialized
             if (typeof validCodewords === 'undefined') {
                 validCodewords = [];
@@ -789,15 +789,34 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
 
-            validCodewords.push(newCodeword);
-            updateValidCodewordDisplay();
-            showSuccess('codewordSuccess');
+            try {
+                // Save to database first
+                const { error } = await supabaseClient
+                    .from('valid_codewords')
+                    .insert([{ codeword: newCodeword }]);
 
-            // Save to database
-            supabaseClient.from('valid_codewords').insert([{ codeword: newCodeword }]);
+                if (error) {
+                    console.error('Error saving codeword:', error);
+                    showError('codewordError');
+                    return;
+                }
+
+                // Update local array and display
+                validCodewords.push(newCodeword);
+                updateValidCodewordDisplay();
+                showSuccess('codewordSuccess');
+                
+                // Clear the input field
+                document.getElementById('newCodeword').value = '';
+                
+                console.log('✅ Codeword added successfully:', newCodeword);
+            } catch (error) {
+                console.error('Error adding codeword:', error);
+                showError('codewordError');
+            }
         }
 
-        function removeValidCodeword(codeword) {
+        async function removeValidCodeword(codeword) {
             // Ensure validCodewords is initialized
             if (typeof validCodewords === 'undefined') {
                 validCodewords = [];
@@ -805,16 +824,38 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             
             const index = validCodewords.indexOf(codeword);
             if (index > -1) {
-                validCodewords.splice(index, 1);
-                updateValidCodewordDisplay();
-                showSuccess('codewordSuccess');
+                try {
+                    // Delete from database first
+                    const { error } = await supabaseClient
+                        .from('valid_codewords')
+                        .delete()
+                        .eq('codeword', codeword);
 
-                // Delete from database
-                supabaseClient.from('valid_codewords').delete().eq('codeword', codeword);
+                    if (error) {
+                        console.error('Error deleting codeword:', error);
+                        showError('codewordError');
+                        return;
+                    }
+
+                    // Update local array and display
+                    validCodewords.splice(index, 1);
+                    updateValidCodewordDisplay();
+                    showSuccess('codewordSuccess');
+                    
+                    console.log('✅ Codeword removed successfully:', codeword);
+                } catch (error) {
+                    console.error('Error removing codeword:', error);
+                    showError('codewordError');
+                }
             }
         }
 
         function updateValidCodewordDisplay() {
+            // Ensure validCodewords is initialized
+            if (typeof validCodewords === 'undefined') {
+                validCodewords = [];
+            }
+            
             document.getElementById('validCodewordCount').textContent = validCodewords.length;
             const list = document.getElementById('validCodewordsList');
             list.innerHTML = ''; // Clear previous content
@@ -830,6 +871,8 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                     <button class="remove-video-btn" onclick="removeValidCodeword('${codeword}')"><i class="fas fa-times"></i></button>
                 </div>`;
             });
+            
+            console.log('📊 Valid codewords display updated:', validCodewords.length, 'codewords');
         }
 
         function addVideoInput() {
