@@ -537,15 +537,94 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             }
         }
 
-        function loadCurrentValues() {
-            // Load current winner
-            document.getElementById('winnerName').value = 'John Doe';
-            document.getElementById('winnerYoutube').value = '@ScoobyBoi78';
+        // Database helper functions
+        async function saveConfigToDatabase(key, value) {
+            const { data, error } = await supabaseClient
+                .from('site_config')
+                .upsert({ 
+                    config_key: key, 
+                    config_value: value,
+                    updated_at: new Date().toISOString()
+                });
             
-            // Load current videos (you can update these manually)
-            document.getElementById('video1').value = '4FWwHKRkwoU';
-            document.getElementById('video2').value = 'Zs877UXy5_g';
-            document.getElementById('video3').value = 'e5BjiDxgUVU';
+            if (error) {
+                throw error;
+            }
+            return data;
+        }
+
+        async function loadConfigFromDatabase() {
+            const { data, error } = await supabaseClient
+                .from('site_config')
+                .select('*');
+            
+            if (error) {
+                console.error('Error loading config:', error);
+                return {};
+            }
+            
+            const config = {};
+            data.forEach(row => {
+                config[row.config_key] = row.config_value;
+            });
+            return config;
+        }
+
+        async function loadCurrentValues() {
+            try {
+                const config = await loadConfigFromDatabase();
+                
+                // Load current winner
+                document.getElementById('winnerName').value = config.winner_name || 'John Doe';
+                document.getElementById('winnerYoutube').value = config.winner_youtube || '@ScoobyBoi78';
+                
+                // Load current prize info
+                document.getElementById('prizeImageUrl').value = config.prize_image_url || '';
+                document.getElementById('prizeImageAlt').value = config.prize_image_alt || '';
+                document.getElementById('prizeDescription').value = config.prize_description || '';
+                
+                // Load current videos
+                if (config.featured_videos) {
+                    try {
+                        const videos = JSON.parse(config.featured_videos);
+                        document.getElementById('video1').value = videos[0] || '';
+                        document.getElementById('video2').value = videos[1] || '';
+                        document.getElementById('video3').value = videos[2] || '';
+                        
+                        // Add additional video inputs if there are more than 3 videos
+                        for (let i = 3; i < videos.length; i++) {
+                            addVideoInput();
+                            document.getElementById(`video${i + 1}`).value = videos[i];
+                        }
+                    } catch (error) {
+                        console.error('Error parsing featured videos:', error);
+                        // Use default videos
+                        document.getElementById('video1').value = '4FWwHKRkwoU';
+                        document.getElementById('video2').value = 'Zs877UXy5_g';
+                        document.getElementById('video3').value = 'e5BjiDxgUVU';
+                    }
+                } else {
+                    // Use default videos
+                    document.getElementById('video1').value = '4FWwHKRkwoU';
+                    document.getElementById('video2').value = 'Zs877UXy5_g';
+                    document.getElementById('video3').value = 'e5BjiDxgUVU';
+                }
+                
+                // Update preview if image URL exists
+                if (config.prize_image_url) {
+                    const preview = document.getElementById('prizeImagePreview');
+                    preview.innerHTML = `<h4>Current Image:</h4><img src="${config.prize_image_url}" alt="${config.prize_image_alt || 'Current Prize'}">`;
+                }
+                
+            } catch (error) {
+                console.error('Error loading current values:', error);
+                // Use defaults if database load fails
+                document.getElementById('winnerName').value = 'John Doe';
+                document.getElementById('winnerYoutube').value = '@ScoobyBoi78';
+                document.getElementById('video1').value = '4FWwHKRkwoU';
+                document.getElementById('video2').value = 'Zs877UXy5_g';
+                document.getElementById('video3').value = 'e5BjiDxgUVU';
+            }
         }
 
         function handleImageUpload(event) {
@@ -559,7 +638,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             }
             
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const imageUrl = e.target.result;
                 
                 // Update the URL field with the data URL
@@ -569,11 +648,15 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 const preview = document.getElementById('prizeImagePreview');
                 preview.innerHTML = `<h4>Uploaded Image Preview:</h4><img src="${imageUrl}" alt="Uploaded Prize">`;
                 
-                // Auto-save the uploaded image
-                localStorage.setItem('prizeImageUrl', imageUrl);
-                localStorage.setItem('prizeImageAlt', file.name);
-                
-                showSuccess('prizeImageSuccess');
+                // Auto-save the uploaded image to database
+                try {
+                    await saveConfigToDatabase('prize_image_url', imageUrl);
+                    await saveConfigToDatabase('prize_image_alt', file.name);
+                    showSuccess('prizeImageSuccess');
+                } catch (error) {
+                    console.error('Error saving uploaded image:', error);
+                    showError('prizeImageError');
+                }
             };
             
             reader.readAsDataURL(file);
@@ -593,7 +676,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             return match ? match[1] : url;
         }
 
-        function updatePrizeImage() {
+        async function updatePrizeImage() {
             const imageUrl = document.getElementById('prizeImageUrl').value;
             const imageAlt = document.getElementById('prizeImageAlt').value;
             
@@ -602,18 +685,23 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
             
-            // Update the preview
-            const preview = document.getElementById('prizeImagePreview');
-            preview.innerHTML = `<h4>New Image Preview:</h4><img src="${imageUrl}" alt="${imageAlt}">`;
-            
-            // Save to localStorage (in a real app, you'd save to a database)
-            localStorage.setItem('prizeImageUrl', imageUrl);
-            localStorage.setItem('prizeImageAlt', imageAlt);
-            
-            showSuccess('prizeImageSuccess');
+            try {
+                // Save to database
+                await saveConfigToDatabase('prize_image_url', imageUrl);
+                await saveConfigToDatabase('prize_image_alt', imageAlt);
+                
+                // Update the preview
+                const preview = document.getElementById('prizeImagePreview');
+                preview.innerHTML = `<h4>New Image Preview:</h4><img src="${imageUrl}" alt="${imageAlt}">`;
+                
+                showSuccess('prizeImageSuccess');
+            } catch (error) {
+                console.error('Error saving prize image:', error);
+                showError('prizeImageError');
+            }
         }
 
-        function updatePrizeDescription() {
+        async function updatePrizeDescription() {
             const description = document.getElementById('prizeDescription').value;
             
             if (!description) {
@@ -621,13 +709,17 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
             
-            // Save to localStorage
-            localStorage.setItem('prizeDescription', description);
-            
-            showSuccess('prizeDescriptionSuccess');
+            try {
+                // Save to database
+                await saveConfigToDatabase('prize_description', description);
+                showSuccess('prizeDescriptionSuccess');
+            } catch (error) {
+                console.error('Error saving prize description:', error);
+                showError('prizeDescriptionError');
+            }
         }
 
-        function updateVideos() {
+        async function updateVideos() {
             const videoInputs = document.querySelectorAll('#videoInputs input');
             const videos = [];
             
@@ -650,13 +742,17 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
             
-            // Save to localStorage
-            localStorage.setItem('featuredVideos', JSON.stringify(videos));
-            
-            showSuccess('videosSuccess');
+            try {
+                // Save to database
+                await saveConfigToDatabase('featured_videos', JSON.stringify(videos));
+                showSuccess('videosSuccess');
+            } catch (error) {
+                console.error('Error saving featured videos:', error);
+                showError('videosError');
+            }
         }
 
-        function updateWinner() {
+        async function updateWinner() {
             const name = document.getElementById('winnerName').value;
             const youtube = document.getElementById('winnerYoutube').value;
             
@@ -665,11 +761,15 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
             
-            // Save to localStorage
-            localStorage.setItem('winnerName', name);
-            localStorage.setItem('winnerYoutube', youtube);
-            
-            showSuccess('winnerSuccess');
+            try {
+                // Save to database
+                await saveConfigToDatabase('winner_name', name);
+                await saveConfigToDatabase('winner_youtube', youtube);
+                showSuccess('winnerSuccess');
+            } catch (error) {
+                console.error('Error saving winner:', error);
+                showError('winnerError');
+            }
         }
 
         function addValidCodeword() {
@@ -1007,9 +1107,13 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             document.getElementById('winnerName').value = winner.name;
             document.getElementById('winnerYoutube').value = winner.youtubeName;
             
-            // Save to localStorage
-            localStorage.setItem('winnerName', winner.name);
-            localStorage.setItem('winnerYoutube', winner.youtubeName);
+            // Save to database
+            try {
+                await saveConfigToDatabase('winner_name', winner.name);
+                await saveConfigToDatabase('winner_youtube', winner.youtubeName);
+            } catch (error) {
+                console.error('Error saving winner to config:', error);
+            }
             
             // Save winner to database
             saveWinner(winner).then(success => {

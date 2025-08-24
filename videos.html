@@ -231,6 +231,7 @@
         </p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Daily Amazement YouTube RSS feed URLs - trying multiple approaches to get more videos
         const youtubeRssUrls = [
@@ -516,8 +517,30 @@
             `;
             
             try {
-                // First check if admin has set featured videos
-                const featuredVideos = localStorage.getItem('featuredVideos');
+                // First check if admin has set featured videos in database
+                const { data, error } = await fetch(`${window.location.origin}/api/config`).catch(() => null);
+                
+                // If API doesn't exist, try direct Supabase query
+                let featuredVideos = null;
+                try {
+                    const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
+                    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzdHl5ZGdueWVuanplZWVxcnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NDUzOTAsImV4cCI6MjA2OTMyMTM5MH0.41mI_Fn-S6bptZjK20PjXIMeKy62ScHJftUT3ahdJQ4';
+                    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+                    
+                    const { data: configData, error: configError } = await supabaseClient
+                        .from('site_config')
+                        .select('config_value')
+                        .eq('config_key', 'featured_videos')
+                        .single();
+                    
+                    if (!configError && configData) {
+                        featuredVideos = configData.config_value;
+                    }
+                } catch (dbError) {
+                    console.log('Database query failed, checking localStorage fallback');
+                    featuredVideos = localStorage.getItem('featuredVideos');
+                }
+                
                 if (featuredVideos) {
                     try {
                         const adminVideoIds = JSON.parse(featuredVideos);

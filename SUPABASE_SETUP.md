@@ -56,6 +56,25 @@ CREATE TABLE valid_codewords (
 );
 ```
 
+### Table 4: site_config
+```sql
+CREATE TABLE site_config (
+  id BIGSERIAL PRIMARY KEY,
+  config_key TEXT UNIQUE NOT NULL,
+  config_value TEXT,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insert default values
+INSERT INTO site_config (config_key, config_value) VALUES 
+('prize_image_url', 'https://static.nike.com/a/images/f_auto/dpr_2.0,cs_srgb/h_1029,c_limit/97e43798-a15e-4c10-8ed0-df5ad5899430/jordan-brand-launches-the-air-jordan-xxxviii.jpg'),
+('prize_image_alt', 'Air Jordan XXXVIII'),
+('prize_description', 'Inspired by the straps on the Air Jordan VIII, the Air Jordan XXXVIII sneaker will debut the X-Plate, a new plate technology that helps to keep players'' feet secure over the footbed during sharp movements.<br>The upper features embroidered designs highlighting Michael Jordan''s performance in the 1993 championship series.<br>The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in Jordan Brand history, made from at least 20 percent recycled material by weight.'),
+('winner_name', 'John Doe'),
+('winner_youtube', '@ScoobyBoi78'),
+('featured_videos', '["4FWwHKRkwoU","Zs877UXy5_g","e5BjiDxgUVU"]');
+```
+
 ## Step 4: Update Your Code
 
 Replace the placeholder values in both files:
