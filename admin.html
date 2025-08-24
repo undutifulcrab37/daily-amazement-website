@@ -551,7 +551,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .select('*')
-                    .order('submittedAt', { ascending: false });
+                    .order('submittedat', { ascending: false });
 
                 if (error) {
                     console.error('Error loading entries:', error);
@@ -579,7 +579,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 const { data, error } = await supabaseClient
                     .from('winners')
                     .select('*')
-                    .order('wonAt', { ascending: false });
+                    .order('wonat', { ascending: false });
 
                 if (error) {
                     console.error('Error loading winners:', error);
@@ -617,10 +617,10 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                     .from('winners')
                     .insert([{
                         name: winner.name,
-                        youtubeName: winner.youtubeName,
+                        youtubename: winner.youtubeName,
                         email: winner.email,
                         codeword: winner.codeword,
-                        wonAt: new Date().toISOString()
+                        wonat: new Date().toISOString()
                     }]);
 
                 if (error) {

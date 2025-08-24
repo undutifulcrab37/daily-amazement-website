@@ -25,12 +25,12 @@
 ```sql
 CREATE TABLE competition_entries (
   id BIGSERIAL PRIMARY KEY,
-  firstName TEXT NOT NULL,
-  lastName TEXT NOT NULL,
-  youtubeName TEXT NOT NULL,
+  firstname TEXT NOT NULL,
+  lastname TEXT NOT NULL,
+  youtubename TEXT NOT NULL,
   codeword TEXT NOT NULL,
   email TEXT NOT NULL,
-  submittedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  submittedat TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(email, codeword)
 );
 ```
@@ -40,10 +40,10 @@ CREATE TABLE competition_entries (
 CREATE TABLE winners (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  youtubeName TEXT NOT NULL,
+  youtubename TEXT NOT NULL,
   email TEXT NOT NULL,
   codeword TEXT NOT NULL,
-  wonAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  wonat TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
 
@@ -52,7 +52,7 @@ CREATE TABLE winners (
 CREATE TABLE valid_codewords (
   id BIGSERIAL PRIMARY KEY,
   codeword TEXT UNIQUE NOT NULL,
-  addedAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  addedat TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
 
