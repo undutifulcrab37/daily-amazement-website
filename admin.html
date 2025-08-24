@@ -152,6 +152,30 @@
         .add-video-btn:hover {
             background: rgba(0, 255, 0, 0.5);
         }
+        
+        .back-home-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%);
+            color: #111;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .back-home-button:hover {
+            background: linear-gradient(90deg, #FFB300 0%, #FFD700 100%);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .back-home-button i {
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -168,6 +192,13 @@
             </button>
         </div>
     </header>
+
+    <div style="text-align: center; margin: 2rem auto 1rem; max-width: 800px;">
+        <a href="index.html" class="back-home-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home Page
+        </a>
+    </div>
 
     <div class="admin-container">
         <!-- Prize Image Section -->
