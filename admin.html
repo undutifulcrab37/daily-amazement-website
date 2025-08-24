@@ -437,56 +437,113 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         let previousWinners = [];
         let validCodewords = []; // New: to store valid codewords
 
+        // Debug function - call this from console to test
+        window.testAddCodeword = function() {
+            console.log('🧪 Test function called - manually adding codeword');
+            document.getElementById('newCodeword').value = 'TEST' + Math.random().toString(36).substr(2, 5);
+            addValidCodeword();
+        };
+
         // Load current values on page load
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Admin panel loading...');
             
-            loadCurrentValues();
-            loadCompetitionEntries();
-            loadPreviousWinners();
-            loadValidCodewords(); // Load valid codewords on page load
+            // Test basic console logging
+            console.log('🔧 Testing console - if you see this, console is working');
+            
+            try {
+                loadCurrentValues();
+                loadCompetitionEntries();
+                loadPreviousWinners();
+                loadValidCodewords(); // Load valid codewords on page load
 
-            // Add event listeners after everything is loaded
-            document.getElementById('updatePrizeImageBtn').addEventListener('click', function() {
-                console.log('🔘 Update Prize Image button clicked');
-                updatePrizeImage();
-            });
-            
-            document.getElementById('updatePrizeDescriptionBtn').addEventListener('click', function() {
-                console.log('🔘 Update Prize Description button clicked');
-                updatePrizeDescription();
-            });
-            
-            document.getElementById('updateVideosBtn').addEventListener('click', function() {
-                console.log('🔘 Update Videos button clicked');
-                updateVideos();
-            });
-            
-            document.getElementById('updateWinnerBtn').addEventListener('click', function() {
-                console.log('🔘 Update Winner button clicked');
-                updateWinner();
-            });
-            
-            document.getElementById('addCodewordBtn').addEventListener('click', function() {
-                console.log('🔘 Add Codeword button clicked');
-                addValidCodeword();
-            });
-            
-            document.getElementById('addManualEntryBtn').addEventListener('click', function() {
-                console.log('🔘 Add Manual Entry button clicked');
-                addManualEntry();
-            });
-            
-            // Add Enter key support for codeword input
-            document.getElementById('newCodeword').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    console.log('⌨️ Enter key pressed in codeword field');
-                    e.preventDefault();
-                    addValidCodeword();
+                // Add event listeners after everything is loaded with error checking
+                const updatePrizeImageBtn = document.getElementById('updatePrizeImageBtn');
+                if (updatePrizeImageBtn) {
+                    updatePrizeImageBtn.addEventListener('click', function() {
+                        console.log('🔘 Update Prize Image button clicked');
+                        updatePrizeImage();
+                    });
+                    console.log('✅ Prize Image button listener added');
+                } else {
+                    console.error('❌ updatePrizeImageBtn not found');
                 }
-            });
-            
-            console.log('✅ Admin panel loaded and event listeners attached');
+                
+                const updatePrizeDescriptionBtn = document.getElementById('updatePrizeDescriptionBtn');
+                if (updatePrizeDescriptionBtn) {
+                    updatePrizeDescriptionBtn.addEventListener('click', function() {
+                        console.log('🔘 Update Prize Description button clicked');
+                        updatePrizeDescription();
+                    });
+                    console.log('✅ Prize Description button listener added');
+                } else {
+                    console.error('❌ updatePrizeDescriptionBtn not found');
+                }
+                
+                const updateVideosBtn = document.getElementById('updateVideosBtn');
+                if (updateVideosBtn) {
+                    updateVideosBtn.addEventListener('click', function() {
+                        console.log('🔘 Update Videos button clicked');
+                        updateVideos();
+                    });
+                    console.log('✅ Videos button listener added');
+                } else {
+                    console.error('❌ updateVideosBtn not found');
+                }
+                
+                const updateWinnerBtn = document.getElementById('updateWinnerBtn');
+                if (updateWinnerBtn) {
+                    updateWinnerBtn.addEventListener('click', function() {
+                        console.log('🔘 Update Winner button clicked');
+                        updateWinner();
+                    });
+                    console.log('✅ Winner button listener added');
+                } else {
+                    console.error('❌ updateWinnerBtn not found');
+                }
+                
+                const addCodewordBtn = document.getElementById('addCodewordBtn');
+                if (addCodewordBtn) {
+                    addCodewordBtn.addEventListener('click', function() {
+                        console.log('🔘 Add Codeword button clicked');
+                        addValidCodeword();
+                    });
+                    console.log('✅ Add Codeword button listener added');
+                } else {
+                    console.error('❌ addCodewordBtn not found');
+                }
+                
+                const addManualEntryBtn = document.getElementById('addManualEntryBtn');
+                if (addManualEntryBtn) {
+                    addManualEntryBtn.addEventListener('click', function() {
+                        console.log('🔘 Add Manual Entry button clicked');
+                        addManualEntry();
+                    });
+                    console.log('✅ Manual Entry button listener added');
+                } else {
+                    console.error('❌ addManualEntryBtn not found');
+                }
+                
+                // Add Enter key support for codeword input
+                const newCodewordInput = document.getElementById('newCodeword');
+                if (newCodewordInput) {
+                    newCodewordInput.addEventListener('keypress', function(e) {
+                        console.log('⌨️ Key pressed in codeword field:', e.key);
+                        if (e.key === 'Enter') {
+                            console.log('⌨️ Enter key detected - calling addValidCodeword');
+                            e.preventDefault();
+                            addValidCodeword();
+                        }
+                    });
+                    console.log('✅ Codeword input Enter key listener added');
+                } else {
+                    console.error('❌ newCodeword input not found');
+                }
+                
+                console.log('✅ Admin panel loaded and event listeners attached');
+            } catch (error) {
+                console.error('💥 Error during admin panel initialization:', error);
+            }
         });
 
         async function loadCompetitionEntries() {
