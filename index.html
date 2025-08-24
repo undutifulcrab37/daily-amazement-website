@@ -94,6 +94,10 @@
 
         <section class="videos-section">
             <h2>Featured Videos</h2>
+            <p style="color: #90EE90; text-align: center; margin-bottom: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> 
+                Displaying latest 3 videos from Daily Amazement
+            </p>
             <div id="video-container">
                 <!-- YouTube videos will be added here -->
             </div>
@@ -156,27 +160,62 @@
         // Initialize Supabase client
         const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzdHl5ZGdueWVuanplZWVxcnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NDUzOTAsImV4cCI6MjA2OTMyMTM5MH0.41mI_Fn-S6bptZjK20PjXIMeKy62ScHJftUT3ahdJQ4';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        
+        let supabaseClient;
+        try {
+            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            console.log('Supabase client initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize Supabase client:', error);
+            alert('Failed to initialize database connection. Please refresh the page and try again.');
+        }
 
         // Handle form submission
         document.querySelector('.subscriber-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             console.log('Form submitted!');
             
+            // Get form values
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const youtubeName = document.getElementById('youtubeName').value.trim();
+            const codeword = document.getElementById('codeword').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            // Basic validation
+            if (!firstName || !lastName || !youtubeName || !codeword || !email) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            
             const formData = {
-                firstname: document.getElementById('firstName').value,
-                lastname: document.getElementById('lastName').value,
-                youtubename: document.getElementById('youtubeName').value,
-                codeword: document.getElementById('codeword').value,
-                email: document.getElementById('email').value,
-                submittedat: new Date().toISOString()
+                firstName: firstName,
+                lastName: lastName,
+                youtubeName: youtubeName,
+                codeword: codeword,
+                email: email,
+                submittedAt: new Date().toISOString()
             };
 
             console.log('Form data:', formData);
+            console.log('Supabase client:', supabaseClient);
+
+            // Check if Supabase client is available
+            if (!supabaseClient) {
+                alert('Database connection not available. Please refresh the page and try again.');
+                return;
+            }
 
             try {
-                console.log('Attempting to insert entry directly...');
-                // Insert new entry directly without checking for existing
+                console.log('Attempting to insert entry...');
+                // Insert new entry
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .insert([formData]);
@@ -184,7 +223,15 @@
                 if (error) {
                     console.error('Error saving entry:', error);
                     console.error('Error details:', JSON.stringify(error, null, 2));
-                    alert('Error submitting entry. Please try again.');
+                    
+                    // More specific error messages
+                    if (error.code === '23505') {
+                        alert('You have already submitted an entry with this email and codeword combination. Please use a different codeword or email.');
+                    } else if (error.message) {
+                        alert(`Error: ${error.message}`);
+                    } else {
+                        alert('Error submitting entry. Please try again.');
+                    }
                     return;
                 }
 
@@ -194,8 +241,8 @@
                 document.querySelector('.subscriber-form').reset();
 
             } catch (error) {
-                console.error('Error:', error);
-                alert('Error submitting entry. Please try again.');
+                console.error('Unexpected error:', error);
+                alert('An unexpected error occurred. Please try again or contact support.');
             }
         });
 
@@ -208,8 +255,29 @@
         // Add a test button to the page
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded - form ready to submit entries!');
-            // Test button removed - form is working properly now
+            
+            // Test Supabase connection
+            testSupabaseConnection();
         });
+        
+        // Test Supabase connection
+        async function testSupabaseConnection() {
+            try {
+                console.log('Testing Supabase connection...');
+                const { data, error } = await supabaseClient
+                    .from('competition_entries')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('Supabase connection test failed:', error);
+                } else {
+                    console.log('Supabase connection successful!');
+                }
+            } catch (error) {
+                console.error('Supabase connection test error:', error);
+            }
+        }
 
         // Function to show success message
         function showSuccessMessage() {

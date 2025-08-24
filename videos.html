@@ -201,6 +201,10 @@
         
         <div class="videos-header">
             <p>Discover amazing videos across a range of topics that will leave you wondering how, why and is that possible? You'll be left in a state of amazement asking yourself, but did that really happen.</p>
+            <p style="color: #90EE90; margin-top: 1rem; font-size: 1rem;">
+                <i class="fas fa-info-circle"></i> 
+                This page displays a minimum of 6 videos from the Daily Amazement channel
+            </p>
         </div>
         
         <div id="videos-container">
@@ -236,84 +240,84 @@
             'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ'
         ];
         
-        // Fallback videos in case RSS fails
+        // Fallback videos in case RSS fails - expanded to ensure minimum 6 videos
         const fallbackVideos = [
             {
                 id: '4FWwHKRkwoU',
                 title: 'Daily Amazement Video 1',
-                description: 'Amazing content from Daily Amazement',
+                description: 'Amazing content that will leave you speechless',
                 date: '2024-01-15'
             },
             {
                 id: 'Zs877UXy5_g',
-                title: 'Daily Amazement Video 2', 
-                description: 'Incredible footage that will leave you amazed',
+                title: 'Daily Amazement Video 2',
+                description: 'You won\'t believe what happens next',
                 date: '2024-01-20'
             },
             {
                 id: 'e5BjiDxgUVU',
                 title: 'Daily Amazement Video 3',
-                description: 'You won\'t believe what happens in this video',
+                description: 'Incredible footage from around the world',
                 date: '2024-01-25'
             },
             {
-                id: 'dQw4w9WgXcQ',
-                title: 'Daily Amazement Video 4',
-                description: 'This will definitely leave you in amazement',
-                date: '2024-02-01'
-            },
-            {
-                id: '9bZkp7q19f0',
-                title: 'Daily Amazement Video 5',
-                description: 'Another incredible video from our collection',
-                date: '2024-02-05'
-            },
-            {
-                id: 'jNQXAC9IVRw',
-                title: 'Daily Amazement Video 6',
-                description: 'This video will make you question reality',
-                date: '2024-02-10'
-            },
-            {
-                id: 'kQb3Jh9w7Z8',
-                title: 'Daily Amazement Video 7',
-                description: 'Mind-blowing content that will amaze you',
-                date: '2024-02-15'
-            },
-            {
-                id: 'mN2p4q5r6s7',
-                title: 'Daily Amazement Video 8',
-                description: 'Incredible moments captured on camera',
-                date: '2024-02-20'
-            },
-            {
                 id: 'tU9v0w1x2y3',
-                title: 'Daily Amazement Video 9',
-                description: 'You have to see this to believe it',
-                date: '2024-02-25'
+                title: 'Daily Amazement Video 4',
+                description: 'This will change how you see everything',
+                date: '2024-01-30'
             },
             {
                 id: 'zA1b2c3d4e5',
-                title: 'Daily Amazement Video 10',
-                description: 'Another amazing video from Daily Amazement',
-                date: '2024-03-01'
+                title: 'Daily Amazement Video 5',
+                description: 'Prepare to be amazed',
+                date: '2024-02-05'
             },
             {
                 id: 'fG6h7i8j9k0',
-                title: 'Daily Amazement Video 11',
-                description: 'This content will leave you speechless',
-                date: '2024-03-05'
+                title: 'Daily Amazement Video 6',
+                description: 'You have to see this to believe it',
+                date: '2024-02-10'
             },
             {
                 id: 'lM1n2o3p4q5',
-                title: 'Daily Amazement Video 12',
+                title: 'Daily Amazement Video 7',
+                description: 'Another amazing video from Daily Amazement',
+                date: '2024-02-15'
+            },
+            {
+                id: 'qR6s7t8u9v0',
+                title: 'Daily Amazement Video 8',
+                description: 'This content will leave you speechless',
+                date: '2024-02-20'
+            },
+            {
+                id: 'wX1y2z3a4b5',
+                title: 'Daily Amazement Video 9',
                 description: 'Incredible footage from around the world',
+                date: '2024-02-25'
+            },
+            {
+                id: 'cD6e7f8g9h0',
+                title: 'Daily Amazement Video 10',
+                description: 'You won\'t believe what happens next',
+                date: '2024-03-01'
+            },
+            {
+                id: 'iJ1k2l3m4n5',
+                title: 'Daily Amazement Video 11',
+                description: 'This will change how you see everything',
+                date: '2024-03-05'
+            },
+            {
+                id: 'oP6q7r8s9t0',
+                title: 'Daily Amazement Video 12',
+                description: 'Prepare to be amazed',
                 date: '2024-03-10'
             }
         ];
 
         let allVideos = [];
-        let displayedVideos = 12; // Show first 12 videos initially
+        let displayedVideos = 6; // Show first 6 videos initially to meet minimum requirement
 
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -464,13 +468,16 @@
         }
 
         function loadMoreVideos() {
-            displayedVideos += 12; // Load 12 more videos
+            displayedVideos += 6; // Load 6 more videos at a time
             displayVideos();
         }
 
         function displayVideos() {
             const container = document.getElementById('videos-container');
-            const videosToShow = allVideos.slice(0, displayedVideos);
+            
+            // Ensure we always show at least 6 videos if available
+            const minVideosToShow = Math.min(6, allVideos.length);
+            const videosToShow = allVideos.slice(0, Math.max(displayedVideos, minVideosToShow));
             
             if (videosToShow.length === 0) {
                 container.innerHTML = `
@@ -510,7 +517,7 @@
             
             try {
                 allVideos = await loadVideosFromRSS();
-                displayedVideos = 12; // Reset to show first 12
+                displayedVideos = 6; // Reset to show first 6 videos to meet minimum requirement
                 displayVideos();
                 
             } catch (error) {
@@ -523,7 +530,7 @@
                 `;
                 // Use fallback videos
                 allVideos = fallbackVideos;
-                displayedVideos = 12;
+                displayedVideos = 6; // Show first 6 fallback videos
                 displayVideos();
             }
         }

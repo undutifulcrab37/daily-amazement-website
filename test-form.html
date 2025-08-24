@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test - Daily Amazement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        .debug {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Form Test Page</h1>
+    <p>This page helps test the form submission to Supabase.</p>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="youtubeName">YouTube Username:</label>
+            <input type="text" id="youtubeName" name="youtubeName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="codeword">Codeword:</label>
+            <input type="text" id="codeword" name="codeword" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <button type="submit">Submit Test Entry</button>
+    </form>
+    
+    <div id="successMessage" class="success">
+        ✅ Entry submitted successfully! Check the console for details.
+    </div>
+    
+    <div id="errorMessage" class="error">
+        ❌ Error submitting entry. Check the console for details.
+    </div>
+    
+    <div id="debugInfo" class="debug"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzdHl5ZGdueWVuanplZWVxcnNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM3NDUzOTAsImV4cCI6MjA2OTMyMTM5MH0.41mI_Fn-S6bptZjK20PjXIMeKy62ScHJftUT3ahdJQ4';
+        
+        let supabaseClient;
+        
+        // Initialize Supabase client
+        try {
+            supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            console.log('✅ Supabase client initialized successfully');
+            updateDebugInfo('Supabase client initialized successfully');
+        } catch (error) {
+            console.error('❌ Failed to initialize Supabase client:', error);
+            updateDebugInfo('Failed to initialize Supabase client: ' + error.message);
+        }
+        
+        // Test connection on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔄 Testing Supabase connection...');
+            updateDebugInfo('Testing Supabase connection...');
+            
+            try {
+                const { data, error } = await supabaseClient
+                    .from('competition_entries')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('❌ Supabase connection test failed:', error);
+                    updateDebugInfo('Connection test failed: ' + JSON.stringify(error, null, 2));
+                } else {
+                    console.log('✅ Supabase connection successful!');
+                    updateDebugInfo('Connection test successful! Database is accessible.');
+                }
+            } catch (error) {
+                console.error('❌ Supabase connection test error:', error);
+                updateDebugInfo('Connection test error: ' + error.message);
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            console.log('📝 Form submitted!');
+            updateDebugInfo('Form submitted...');
+            
+            // Get form values
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const youtubeName = document.getElementById('youtubeName').value.trim();
+            const codeword = document.getElementById('codeword').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            // Basic validation
+            if (!firstName || !lastName || !youtubeName || !codeword || !email) {
+                showError('Please fill in all required fields.');
+                return;
+            }
+            
+            const formData = {
+                firstName: firstName,
+                lastName: lastName,
+                youtubeName: youtubeName,
+                codeword: codeword,
+                email: email,
+                submittedAt: new Date().toISOString()
+            };
+
+            console.log('📊 Form data:', formData);
+            updateDebugInfo('Form data prepared: ' + JSON.stringify(formData, null, 2));
+
+            // Check if Supabase client is available
+            if (!supabaseClient) {
+                showError('Database connection not available. Please refresh the page and try again.');
+                return;
+            }
+
+            try {
+                console.log('🚀 Attempting to insert entry...');
+                updateDebugInfo('Attempting to insert entry into database...');
+                
+                // Insert new entry
+                const { data, error } = await supabaseClient
+                    .from('competition_entries')
+                    .insert([formData]);
+
+                if (error) {
+                    console.error('❌ Error saving entry:', error);
+                    updateDebugInfo('Database error: ' + JSON.stringify(error, null, 2));
+                    
+                    // More specific error messages
+                    if (error.code === '23505') {
+                        showError('You have already submitted an entry with this email and codeword combination. Please use a different codeword or email.');
+                    } else if (error.message) {
+                        showError(`Database error: ${error.message}`);
+                    } else {
+                        showError('Error submitting entry. Please try again.');
+                    }
+                    return;
+                }
+
+                console.log('✅ Entry saved successfully!', data);
+                updateDebugInfo('Entry saved successfully! Response: ' + JSON.stringify(data, null, 2));
+                
+                // Show success message
+                showSuccess();
+                document.getElementById('testForm').reset();
+
+            } catch (error) {
+                console.error('💥 Unexpected error:', error);
+                updateDebugInfo('Unexpected error: ' + error.message);
+                showError('An unexpected error occurred. Please try again or contact support.');
+            }
+        });
+        
+        function showSuccess() {
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+        
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = '❌ ' + message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        function updateDebugInfo(message) {
+            const debugDiv = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString();
+            debugDiv.textContent += `[${timestamp}] ${message}\n`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

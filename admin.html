@@ -221,6 +221,14 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         <div class="admin-section">
             <h2><i class="fab fa-youtube"></i> Update Featured Videos</h2>
             <p style="color: #ccc; margin-bottom: 1rem;">Enter YouTube video URLs or video IDs. The system will automatically extract video IDs from URLs.</p>
+            <p style="color: #90EE90; margin-bottom: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Video Requirements:</strong> Main site requires exactly 3 videos, Video page shows minimum 6 videos
+            </p>
+            <p style="color: #FFD700; margin-bottom: 1rem; font-size: 0.9rem;">
+                <i class="fas fa-exclamation-triangle"></i> 
+                <strong>Note:</strong> The main site will always display exactly 3 videos. Additional videos will be used as backups.
+            </p>
             <div id="videoInputs">
                 <div class="video-input-group">
                     <div class="form-group">
@@ -635,6 +643,13 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 return;
             }
             
+            // Ensure minimum of 3 videos for the main site
+            if (videos.length < 3) {
+                alert('Minimum 3 videos required for the main site. Please add more videos.');
+                showError('videosError');
+                return;
+            }
+            
             // Save to localStorage
             localStorage.setItem('featuredVideos', JSON.stringify(videos));
             
@@ -736,8 +751,11 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
 
         function removeVideo(button) {
             const container = document.getElementById('videoInputs');
-            if (container.children.length > 1) {
+            // Ensure minimum of 3 videos for the main site
+            if (container.children.length > 3) {
                 button.parentElement.remove();
+            } else {
+                alert('Minimum 3 videos required for the main site. Cannot remove more videos.');
             }
         }
 

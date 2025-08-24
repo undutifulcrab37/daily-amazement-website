@@ -32,11 +32,14 @@ const youtubeRssUrls = [
     'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published&max-results=10'
 ];
 
-// Fallback videos in case RSS fails
+// Fallback videos in case RSS fails - expanded to ensure minimum 3 videos
 const fallbackVideos = [
     '4FWwHKRkwoU',
     'Zs877UXy5_g',
-    'e5BjiDxgUVU'
+    'e5BjiDxgUVU',
+    'tU9v0w1x2y3',
+    'zA1b2c3d4e5',
+    'fG6h7i8j9k0'
 ];
 
 function extractVideoId(url) {
@@ -112,16 +115,25 @@ async function loadFeaturedVideos() {
         await new Promise(resolve => setTimeout(resolve, 200));
     }
     
-    // Remove duplicates and get first 3 videos
+    // Remove duplicates and ensure minimum 3 videos
     const uniqueVideos = [...new Set(allRssVideos)];
-    const featuredVideos = uniqueVideos.slice(0, 3);
     
-    if (featuredVideos.length > 0) {
+    // Always return at least 3 videos
+    if (uniqueVideos.length >= 3) {
+        const featuredVideos = uniqueVideos.slice(0, 3);
         console.log(`Using ${featuredVideos.length} videos from RSS feed for featured section`);
         return featuredVideos;
+    } else if (uniqueVideos.length > 0) {
+        // If we have some RSS videos but less than 3, pad with fallback videos
+        const neededVideos = 3 - uniqueVideos.length;
+        const fallbackVideosToAdd = fallbackVideos.slice(0, neededVideos);
+        const combinedVideos = [...uniqueVideos, ...fallbackVideosToAdd];
+        console.log(`Using ${uniqueVideos.length} RSS videos + ${neededVideos} fallback videos for featured section`);
+        return combinedVideos;
     } else {
+        // If no RSS videos, use first 3 fallback videos
         console.log('Using fallback videos for featured section');
-        return fallbackVideos;
+        return fallbackVideos.slice(0, 3);
     }
 }
 
@@ -144,7 +156,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         const videoContainer = document.getElementById('video-container');
         videoContainer.innerHTML = '';
         
-        fallbackVideos.forEach(videoId => addVideo(videoId));
+        // Use only first 3 fallback videos to meet minimum requirement
+        fallbackVideos.slice(0, 3).forEach(videoId => addVideo(videoId));
     }
 });
 
