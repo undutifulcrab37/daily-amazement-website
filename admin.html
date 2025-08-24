@@ -192,7 +192,7 @@
                 <label for="prizeImageAlt">Image Alt Text:</label>
                 <input type="text" id="prizeImageAlt" placeholder="Air Jordan XXXVIII">
             </div>
-            <button class="save-btn" onclick="updatePrizeImage()">Update Prize Image</button>
+            <button class="save-btn" id="updatePrizeImageBtn">Update Prize Image</button>
             <div class="preview" id="prizeImagePreview">
                 <h4>Current Image:</h4>
                 <img src="https://static.nike.com/a/images/f_auto/dpr_2.0,cs_srgb/h_1029,c_limit/97e43798-a15e-4c10-8ed0-df5ad5899430/jordan-brand-launches-the-air-jordan-xxxviii.jpg" alt="Current Prize">
@@ -212,7 +212,7 @@ The upper features embroidered designs highlighting Michael Jordan's performance
 
 The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in Jordan Brand history, made from at least 20 percent recycled material by weight.</textarea>
             </div>
-            <button class="save-btn" onclick="updatePrizeDescription()">Update Prize Description</button>
+            <button class="save-btn" id="updatePrizeDescriptionBtn">Update Prize Description</button>
             <div class="success-message" id="prizeDescriptionSuccess">Prize description updated successfully!</div>
             <div class="error-message" id="prizeDescriptionError">Error updating prize description. Please try again.</div>
         </div>
@@ -253,7 +253,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 </div>
             </div>
             <button class="add-video-btn" onclick="addVideoInput()">Add Another Video</button>
-            <button class="save-btn" onclick="updateVideos()">Update Featured Videos</button>
+            <button class="save-btn" id="updateVideosBtn">Update Featured Videos</button>
             <div class="success-message" id="videosSuccess">Featured videos updated successfully!</div>
             <div class="error-message" id="videosError">Error updating videos. Please try again.</div>
         </div>
@@ -269,7 +269,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 <label for="winnerYoutube">YouTube Name:</label>
                 <input type="text" id="winnerYoutube" placeholder="@ScoobyBoi78">
             </div>
-            <button class="save-btn" onclick="updateWinner()">Update Winner</button>
+            <button class="save-btn" id="updateWinnerBtn">Update Winner</button>
             <div class="success-message" id="winnerSuccess">Winner updated successfully!</div>
             <div class="error-message" id="winnerError">Error updating winner. Please try again.</div>
         </div>
@@ -421,7 +421,8 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         // Check auth on page load
         if (!checkAuth()) {
             // Page will redirect, so stop execution
-            throw new Error('Authentication required');
+            console.log('Authentication failed, redirecting...');
+            // Don't throw error as it prevents other functions from loading
         }
         
         // Initialize Supabase client
@@ -446,6 +447,26 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             loadValidCodewords(); // Load valid codewords on page load
 
             // Add event listeners after everything is loaded
+            document.getElementById('updatePrizeImageBtn').addEventListener('click', function() {
+                console.log('🔘 Update Prize Image button clicked');
+                updatePrizeImage();
+            });
+            
+            document.getElementById('updatePrizeDescriptionBtn').addEventListener('click', function() {
+                console.log('🔘 Update Prize Description button clicked');
+                updatePrizeDescription();
+            });
+            
+            document.getElementById('updateVideosBtn').addEventListener('click', function() {
+                console.log('🔘 Update Videos button clicked');
+                updateVideos();
+            });
+            
+            document.getElementById('updateWinnerBtn').addEventListener('click', function() {
+                console.log('🔘 Update Winner button clicked');
+                updateWinner();
+            });
+            
             document.getElementById('addCodewordBtn').addEventListener('click', function() {
                 console.log('🔘 Add Codeword button clicked');
                 addValidCodeword();
