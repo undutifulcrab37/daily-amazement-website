@@ -230,12 +230,16 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Daily Amazement YouTube RSS feed URLs - trying multiple approaches to get more videos
+        // Daily Amazement channel configuration
+        const CHANNEL_ID = 'UCZ0DFo8W800exk9sTR7kUMQ';
+        // TODO: Replace with your actual YouTube Data API key from Google Cloud Console
+        // Get one free at: https://console.cloud.google.com/apis/credentials
+        const YOUTUBE_API_KEY = 'AIzaSyB4nN8Q7J3sK9L2fH5vP1rX8cG6mE9wT4u'; // Demo key - replace with real one
+        
+        // Multiple approaches to get videos
         const youtubeRssUrls = [
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&max-results=50',
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published&max-results=50',
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=updated&max-results=50',
-            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ'
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ',
+            'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published'
         ];
         
         // Fallback videos in case RSS fails - expanded to ensure minimum 6 videos
@@ -333,6 +337,37 @@
             return match ? match[1] : null;
         }
 
+        async function loadVideosFromYouTubeAPI() {
+            try {
+                const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=12&type=video`;
+                
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    console.log('YouTube API request failed:', response.status);
+                    return [];
+                }
+
+                const data = await response.json();
+                if (!data.items || data.items.length === 0) {
+                    console.log('No videos found from YouTube API');
+                    return [];
+                }
+
+                const videos = data.items.map(item => ({
+                    id: item.id.videoId,
+                    title: item.snippet.title,
+                    description: item.snippet.description.substring(0, 150) + '...',
+                    date: item.snippet.publishedAt
+                }));
+
+                console.log(`✅ YouTube API loaded ${videos.length} videos`);
+                return videos;
+            } catch (error) {
+                console.log('YouTube API failed:', error.message);
+                return [];
+            }
+        }
+
         function parseRssFeed(xmlText) {
             const parser = new DOMParser();
             const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
@@ -364,8 +399,9 @@
                 const proxies = [
                     'https://api.allorigins.win/raw?url=',
                     'https://api.codetabs.com/v1/proxy?quest=',
-                    'https://crossorigin.me/',
-                    'https://api.allorigins.win/get?url='
+                    'https://cors-proxy.htmldriven.com/?url=',
+                    'https://api.allorigins.win/get?url=',
+                    'https://thingproxy.freeboard.io/fetch/'
                 ];
                 
                 for (const proxy of proxies) {
@@ -415,7 +451,7 @@
                 allRssVideos = allRssVideos.concat(videos);
                 
                 // Add a small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
                 // If we got enough videos, break early
                 if (allRssVideos.length >= 6) {
@@ -428,16 +464,39 @@
                 index === self.findIndex(v => v.id === video.id)
             );
             
-            // Ensure we have at least 6 videos by combining RSS and fallback
+            console.log(`RSS feeds returned ${uniqueVideos.length} unique videos`);
+            return uniqueVideos;
+        }
+
+        async function loadAllVideos() {
+            console.log('🔄 Loading videos using multiple methods...');
+            
+            // Method 1: Try YouTube Data API first (most reliable)
+            let videos = await loadVideosFromYouTubeAPI();
+            if (videos.length >= 6) {
+                console.log(`✅ YouTube API provided ${videos.length} videos - using API results`);
+                return videos;
+            }
+            
+            // Method 2: Try RSS feeds as backup
+            console.log('📡 YouTube API insufficient, trying RSS feeds...');
+            const rssVideos = await loadVideosFromRSS();
+            videos = [...videos, ...rssVideos];
+            
+            // Remove duplicates
+            const uniqueVideos = videos.filter((video, index, self) => 
+                index === self.findIndex(v => v.id === video.id)
+            );
+            
+            // Method 3: Supplement with fallback videos if needed
             if (uniqueVideos.length < 6) {
-                console.log(`Only ${uniqueVideos.length} videos from RSS, supplementing with fallback videos`);
-                // Add fallback videos to reach minimum of 6
+                console.log(`Only ${uniqueVideos.length} videos total, supplementing with fallback videos`);
                 const neededVideos = 6 - uniqueVideos.length;
                 const supplementVideos = fallbackVideos.slice(0, neededVideos);
                 return [...uniqueVideos, ...supplementVideos];
             }
             
-            console.log(`Total unique videos loaded: ${uniqueVideos.length}`);
+            console.log(`✅ Total videos loaded: ${uniqueVideos.length}`);
             return uniqueVideos;
         }
 
@@ -577,8 +636,8 @@
                     }
                 }
                 
-                // If no admin videos or less than 6, load from RSS
-                allVideos = await loadVideosFromRSS();
+                // If no admin videos or less than 6, load using all available methods
+                allVideos = await loadAllVideos();
                 
                 // Final safety check - ensure we always have at least 6 videos
                 if (allVideos.length < 6) {
