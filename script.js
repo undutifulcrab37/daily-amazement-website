@@ -26,13 +26,19 @@ function updateWinnerName(name) {
     winnerElement.textContent = name;
 }
 
-// RSS feed URLs for Daily Amazement channel
+// Daily Amazement channel configuration
+const CHANNEL_ID = 'UCZ0DFo8W800exk9sTR7kUMQ';
+// TODO: Replace with your actual YouTube Data API key from Google Cloud Console
+// Get one free at: https://console.cloud.google.com/apis/credentials
+const YOUTUBE_API_KEY = 'AIzaSyCd_W_kuZjiNTftq7DIVjMTfsqiBZs1T2I'; // Updated with your real API key
+
+// RSS feed URLs for Daily Amazement channel (backup method)
 const youtubeRssUrls = [
-    'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&max-results=10',
-    'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published&max-results=10'
+    'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ',
+    'https://www.youtube.com/feeds/videos.xml?channel_id=UCZ0DFo8W800exk9sTR7kUMQ&orderby=published'
 ];
 
-// Fallback videos in case RSS fails - expanded to ensure minimum 3 videos
+// Fallback videos in case all methods fail - expanded to ensure minimum 3 videos
 const fallbackVideos = [
     '4FWwHKRkwoU',
     'Zs877UXy5_g',
@@ -47,6 +53,31 @@ function extractVideoId(url) {
     const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
     const match = url.match(regex);
     return match ? match[1] : null;
+}
+
+async function loadVideosFromYouTubeAPI() {
+    try {
+        const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${YOUTUBE_API_KEY}&channelId=${CHANNEL_ID}&part=snippet&order=date&maxResults=6&type=video`;
+        
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            console.log('YouTube API request failed:', response.status);
+            return [];
+        }
+
+        const data = await response.json();
+        if (!data.items || data.items.length === 0) {
+            console.log('No videos found from YouTube API');
+            return [];
+        }
+
+        const videos = data.items.map(item => item.id.videoId);
+        console.log(`✅ YouTube API loaded ${videos.length} videos for home page`);
+        return videos;
+    } catch (error) {
+        console.log('YouTube API failed:', error.message);
+        return [];
+    }
 }
 
 function parseRssFeed(xmlText) {
@@ -104,36 +135,49 @@ async function tryRssFeed(url) {
 }
 
 async function loadFeaturedVideos() {
+    console.log('🔄 Loading featured videos using multiple methods...');
+    
+    // Method 1: Try YouTube Data API first (most reliable)
+    let videos = await loadVideosFromYouTubeAPI();
+    if (videos.length >= 3) {
+        const featuredVideos = videos.slice(0, 3);
+        console.log(`✅ YouTube API provided ${featuredVideos.length} videos for home page featured section`);
+        return featuredVideos;
+    }
+    
+    // Method 2: Try RSS feeds as backup
+    console.log('📡 YouTube API insufficient, trying RSS feeds...');
     let allRssVideos = [];
     
-    // Try multiple RSS feed URLs to get more videos
     for (const url of youtubeRssUrls) {
-        const videos = await tryRssFeed(url);
-        allRssVideos = allRssVideos.concat(videos);
+        const rssVideos = await tryRssFeed(url);
+        allRssVideos = allRssVideos.concat(rssVideos);
         
         // Add a small delay between requests
         await new Promise(resolve => setTimeout(resolve, 200));
     }
     
-    // Remove duplicates and ensure minimum 3 videos
-    const uniqueVideos = [...new Set(allRssVideos)];
+    // Combine API and RSS videos, remove duplicates
+    const allVideos = [...videos, ...allRssVideos];
+    const uniqueVideos = [...new Set(allVideos)];
     
-    // Always return at least 3 videos
+    // Method 3: Supplement with fallback videos if needed
     if (uniqueVideos.length >= 3) {
         const featuredVideos = uniqueVideos.slice(0, 3);
-        console.log(`Using ${featuredVideos.length} videos from RSS feed for featured section`);
+        console.log(`✅ Using ${featuredVideos.length} videos from API/RSS for featured section`);
         return featuredVideos;
     } else if (uniqueVideos.length > 0) {
-        // If we have some RSS videos but less than 3, pad with fallback videos
+        // Supplement with fallback videos if needed
         const neededVideos = 3 - uniqueVideos.length;
-        const fallbackVideosToAdd = fallbackVideos.slice(0, neededVideos);
-        const combinedVideos = [...uniqueVideos, ...fallbackVideosToAdd];
-        console.log(`Using ${uniqueVideos.length} RSS videos + ${neededVideos} fallback videos for featured section`);
-        return combinedVideos;
+        const supplementVideos = fallbackVideos.slice(0, neededVideos);
+        const featuredVideos = [...uniqueVideos, ...supplementVideos];
+        console.log(`✅ Using ${uniqueVideos.length} real videos + ${supplementVideos.length} fallback videos for featured section`);
+        return featuredVideos;
     } else {
-        // If no RSS videos, use first 3 fallback videos
-        console.log('Using fallback videos for featured section');
-        return fallbackVideos.slice(0, 3);
+        // Use fallback videos only
+        const featuredVideos = fallbackVideos.slice(0, 3);
+        console.log(`⚠️ Using ${featuredVideos.length} fallback videos for featured section`);
+        return featuredVideos;
     }
 }
 
