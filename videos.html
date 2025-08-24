@@ -366,26 +366,38 @@
                 // Try multiple CORS proxies to increase success rate
                 const proxies = [
                     'https://api.allorigins.win/raw?url=',
-                    'https://cors-anywhere.herokuapp.com/',
-                    'https://thingproxy.freeboard.io/fetch/'
+                    'https://api.codetabs.com/v1/proxy?quest=',
+                    'https://crossorigin.me/',
+                    'https://api.allorigins.win/get?url='
                 ];
                 
                 for (const proxy of proxies) {
                     try {
                         const response = await fetch(proxy + encodeURIComponent(url), {
-                            timeout: 5000
+                            timeout: 8000
                         });
                         
                         if (response.ok) {
-                            const xmlText = await response.text();
+                            let xmlText = await response.text();
+                            
+                            // Handle different proxy response formats
+                            if (proxy.includes('allorigins.win/get')) {
+                                try {
+                                    const jsonResponse = JSON.parse(xmlText);
+                                    xmlText = jsonResponse.contents || xmlText;
+                                } catch (e) {
+                                    // If not JSON, use as is
+                                }
+                            }
+                            
                             const videos = parseRssFeed(xmlText);
                             if (videos.length > 0) {
-                                console.log(`Successfully loaded ${videos.length} videos from RSS feed`);
+                                console.log(`Successfully loaded ${videos.length} videos from RSS feed using proxy ${proxy}`);
                                 return videos;
                             }
                         }
                     } catch (error) {
-                        console.log(`Proxy ${proxy} failed, trying next...`);
+                        console.log(`Proxy ${proxy} failed:`, error.message);
                         continue;
                     }
                 }
@@ -406,7 +418,12 @@
                 allRssVideos = allRssVideos.concat(videos);
                 
                 // Add a small delay between requests
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // If we got enough videos, break early
+                if (allRssVideos.length >= 6) {
+                    break;
+                }
             }
             
             // Remove duplicates based on video ID
@@ -414,13 +431,17 @@
                 index === self.findIndex(v => v.id === video.id)
             );
             
-            if (uniqueVideos.length > 0) {
-                console.log(`Total unique videos loaded: ${uniqueVideos.length}`);
-                return uniqueVideos;
-            } else {
-                console.log('No videos from RSS, using fallback videos');
-                return fallbackVideos;
+            // Ensure we have at least 6 videos by combining RSS and fallback
+            if (uniqueVideos.length < 6) {
+                console.log(`Only ${uniqueVideos.length} videos from RSS, supplementing with fallback videos`);
+                // Add fallback videos to reach minimum of 6
+                const neededVideos = 6 - uniqueVideos.length;
+                const supplementVideos = fallbackVideos.slice(0, neededVideos);
+                return [...uniqueVideos, ...supplementVideos];
             }
+            
+            console.log(`Total unique videos loaded: ${uniqueVideos.length}`);
+            return uniqueVideos;
         }
 
         function createVideoCard(video) {
@@ -517,10 +538,7 @@
             `;
             
             try {
-                // First check if admin has set featured videos in database
-                const { data, error } = await fetch(`${window.location.origin}/api/config`).catch(() => null);
-                
-                // If API doesn't exist, try direct Supabase query
+                // Try direct Supabase query for featured videos
                 let featuredVideos = null;
                 try {
                     const supabaseUrl = 'https://gstyydgnyenjzeeeqrse.supabase.co';
@@ -564,21 +582,35 @@
                 
                 // If no admin videos or less than 6, load from RSS
                 allVideos = await loadVideosFromRSS();
+                
+                // Final safety check - ensure we always have at least 6 videos
+                if (allVideos.length < 6) {
+                    console.log('Ensuring minimum 6 videos with fallback');
+                    const neededVideos = 6 - allVideos.length;
+                    allVideos = [...allVideos, ...fallbackVideos.slice(0, neededVideos)];
+                }
+                
                 displayedVideos = 6; // Reset to show first 6 videos to meet minimum requirement
                 displayVideos();
                 
             } catch (error) {
                 console.error('Error loading videos:', error);
+                // Use fallback videos as last resort
+                allVideos = fallbackVideos.slice(0, 6); // Ensure exactly 6 videos
+                displayedVideos = 6;
+                
+                // Show brief error message, then display fallback videos
                 container.innerHTML = `
-                    <div class="error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Error loading videos. Using fallback videos.
+                    <div class="error" style="margin-bottom: 2rem;">
+                        <i class="fas fa-info-circle"></i>
+                        Loading fallback videos (RSS feeds temporarily unavailable)
                     </div>
                 `;
-                // Use fallback videos
-                allVideos = fallbackVideos;
-                displayedVideos = 6; // Show first 6 fallback videos
-                displayVideos();
+                
+                // Display videos after a short delay
+                setTimeout(() => {
+                    displayVideos();
+                }, 1000);
             }
         }
 
