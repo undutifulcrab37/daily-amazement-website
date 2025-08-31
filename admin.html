@@ -305,6 +305,63 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             <div class="error-message" id="winnerError">Error updating winner. Please try again.</div>
         </div>
 
+        <!-- Competition Entries Overview Section -->
+        <div class="admin-section">
+            <h2><i class="fas fa-users"></i> Competition Entries Overview</h2>
+            <p style="color: #ccc; margin-bottom: 1.5rem;">View all competition entries, participant details, and submitted codewords.</p>
+            
+            <!-- Entry Statistics -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                <div style="background: rgba(0, 255, 0, 0.1); padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(0, 255, 0, 0.3); text-align: center;">
+                    <h3 style="color: #90EE90; margin: 0; font-size: 2rem;" id="totalEntriesCount">0</h3>
+                    <p style="color: #90EE90; margin: 0.5rem 0 0 0; font-weight: 500;">Total Entries</p>
+                </div>
+                <div style="background: rgba(255, 215, 0, 0.1); padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255, 215, 0, 0.3); text-align: center;">
+                    <h3 style="color: #FFD700; margin: 0; font-size: 2rem;" id="uniqueParticipantsCount">0</h3>
+                    <p style="color: #FFD700; margin: 0.5rem 0 0 0; font-weight: 500;">Unique Participants</p>
+                </div>
+                <div style="background: rgba(0, 191, 255, 0.1); padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(0, 191, 255, 0.3); text-align: center;">
+                    <h3 style="color: #00BFFF; margin: 0; font-size: 2rem;" id="uniqueCodewordsCount">0</h3>
+                    <p style="color: #00BFFF; margin: 0.5rem 0 0 0; font-weight: 500;">Unique Codewords Used</p>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                    <input type="text" id="entrySearchInput" placeholder="Search by name, email, or codeword..." style="flex: 1; min-width: 250px; padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: white; font-family: 'Poppins', sans-serif;">
+                    <select id="codewordFilter" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: white; font-family: 'Poppins', sans-serif;">
+                        <option value="">All Codewords</option>
+                    </select>
+                    <button onclick="refreshEntries()" style="background: rgba(0, 255, 0, 0.3); color: #90EE90; border: none; border-radius: 8px; padding: 10px 15px; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Entries Table -->
+            <div style="background: rgba(0, 0, 0, 0.3); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <h4 style="color: #FFD700; margin: 0;">Competition Entries</h4>
+                </div>
+                <div id="entriesTableContainer" style="max-height: 400px; overflow-y: auto;">
+                    <div id="entriesTable" style="padding: 1rem;">
+                        <p style="color: #ccc; text-align: center;">Loading entries...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button onclick="exportEntriesToCSV()" style="background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%); color: #111; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; margin-right: 1rem; font-weight: 600;">
+                    <i class="fas fa-download"></i> Export to CSV
+                </button>
+                <button onclick="copyEntriesToClipboard()" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-copy"></i> Copy to Clipboard
+                </button>
+            </div>
+        </div>
+
         <!-- Valid Codewords Management Section -->
         <div class="admin-section">
             <h2><i class="fas fa-key"></i> Valid Codewords Management</h2>
@@ -467,6 +524,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         let validEntries = [];
         let previousWinners = [];
         let validCodewords = []; // New: to store valid codewords
+        let filteredEntries = []; // For search/filter functionality
 
         // Debug function - call this from console to test
         window.testAddCodeword = function() {
@@ -487,6 +545,7 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 loadCompetitionEntries();
                 loadPreviousWinners();
                 loadValidCodewords(); // Load valid codewords on page load
+                setupEntriesSection(); // Setup the new entries overview section
 
                 // Add event listeners after everything is loaded with error checking
                 const updatePrizeImageBtn = document.getElementById('updatePrizeImageBtn');
@@ -1325,6 +1384,243 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 }
             });
         }
+
+        // ===== COMPETITION ENTRIES OVERVIEW FUNCTIONS =====
+
+        function setupEntriesSection() {
+            console.log('🔄 Setting up entries overview section...');
+            
+            // Add event listeners for search and filter
+            const searchInput = document.getElementById('entrySearchInput');
+            const codewordFilter = document.getElementById('codewordFilter');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', filterEntries);
+            }
+            
+            if (codewordFilter) {
+                codewordFilter.addEventListener('change', filterEntries);
+            }
+            
+            // Initial load of entries overview
+            updateEntriesOverview();
+        }
+
+        function updateEntriesOverview() {
+            console.log('🔄 Updating entries overview...');
+            
+            // Update statistics
+            updateEntriesStatistics();
+            
+            // Update codeword filter options
+            updateCodewordFilterOptions();
+            
+            // Update entries table
+            filteredEntries = [...competitionEntries];
+            displayEntriesTable();
+        }
+
+        function updateEntriesStatistics() {
+            const totalEntries = competitionEntries.length;
+            const uniqueParticipants = new Set(competitionEntries.map(entry => entry.email.toLowerCase())).size;
+            const uniqueCodewords = new Set(competitionEntries.map(entry => entry.codeword)).size;
+            
+            document.getElementById('totalEntriesCount').textContent = totalEntries;
+            document.getElementById('uniqueParticipantsCount').textContent = uniqueParticipants;
+            document.getElementById('uniqueCodewordsCount').textContent = uniqueCodewords;
+            
+            console.log(`📊 Statistics updated: ${totalEntries} entries, ${uniqueParticipants} participants, ${uniqueCodewords} codewords`);
+        }
+
+        function updateCodewordFilterOptions() {
+            const codewordFilter = document.getElementById('codewordFilter');
+            if (!codewordFilter) return;
+            
+            // Get unique codewords from entries
+            const uniqueCodewords = [...new Set(competitionEntries.map(entry => entry.codeword))].sort();
+            
+            // Clear existing options (except "All Codewords")
+            codewordFilter.innerHTML = '<option value="">All Codewords</option>';
+            
+            // Add codeword options
+            uniqueCodewords.forEach(codeword => {
+                const option = document.createElement('option');
+                option.value = codeword;
+                option.textContent = codeword;
+                codewordFilter.appendChild(option);
+            });
+        }
+
+        function filterEntries() {
+            const searchTerm = document.getElementById('entrySearchInput').value.toLowerCase();
+            const selectedCodeword = document.getElementById('codewordFilter').value;
+            
+            filteredEntries = competitionEntries.filter(entry => {
+                const matchesSearch = !searchTerm || 
+                    entry.name.toLowerCase().includes(searchTerm) ||
+                    entry.email.toLowerCase().includes(searchTerm) ||
+                    entry.codeword.toLowerCase().includes(searchTerm) ||
+                    entry.youtubeName.toLowerCase().includes(searchTerm);
+                
+                const matchesCodeword = !selectedCodeword || entry.codeword === selectedCodeword;
+                
+                return matchesSearch && matchesCodeword;
+            });
+            
+            displayEntriesTable();
+        }
+
+        function displayEntriesTable() {
+            const tableContainer = document.getElementById('entriesTable');
+            if (!tableContainer) return;
+            
+            if (filteredEntries.length === 0) {
+                tableContainer.innerHTML = '<p style="color: #ccc; text-align: center;">No entries found matching your criteria.</p>';
+                return;
+            }
+            
+            // Group entries by email to show multiple entries per person
+            const entriesByEmail = {};
+            filteredEntries.forEach(entry => {
+                if (!entriesByEmail[entry.email]) {
+                    entriesByEmail[entry.email] = [];
+                }
+                entriesByEmail[entry.email].push(entry);
+            });
+            
+            let html = '';
+            
+            // Create table header
+            html += `
+                <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr; gap: 1rem; padding: 0.75rem; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-weight: 600; color: #FFD700;">
+                    <div>Participant</div>
+                    <div>YouTube Name</div>
+                    <div>Entries</div>
+                    <div>Codewords</div>
+                    <div>Latest Entry</div>
+                </div>
+            `;
+            
+            // Sort by latest entry date
+            const sortedEntries = Object.entries(entriesByEmail).sort((a, b) => {
+                const latestA = Math.max(...a[1].map(entry => new Date(entry.submittedAt || 0).getTime()));
+                const latestB = Math.max(...b[1].map(entry => new Date(entry.submittedAt || 0).getTime()));
+                return latestB - latestA;
+            });
+            
+            sortedEntries.forEach(([email, entries]) => {
+                const latestEntry = entries.reduce((latest, entry) => {
+                    return new Date(entry.submittedAt || 0) > new Date(latest.submittedAt || 0) ? entry : latest;
+                });
+                
+                const codewords = [...new Set(entries.map(e => e.codeword))];
+                const isValidParticipant = validCodewords.some(validCode => codewords.includes(validCode));
+                
+                const borderColor = isValidParticipant ? 'rgba(0, 255, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)';
+                const bgColor = isValidParticipant ? 'rgba(0, 255, 0, 0.05)' : 'rgba(255, 255, 255, 0.02)';
+                
+                html += `
+                    <div style="display: grid; grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid ${borderColor}; background: ${bgColor}; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.05)'" onmouseout="this.style.background='${bgColor}'">
+                        <div>
+                            <strong style="color: #fff;">${latestEntry.name}</strong><br>
+                            <small style="color: #ccc;">${email}</small>
+                            ${isValidParticipant ? '<br><span style="color: #90EE90; font-size: 0.8rem;"><i class="fas fa-check-circle"></i> Valid Entry</span>' : ''}
+                        </div>
+                        <div style="color: #FFD700;">${latestEntry.youtubeName}</div>
+                        <div style="color: #00BFFF; font-weight: 600; font-size: 1.2rem;">${entries.length}</div>
+                        <div style="color: #ccc; font-size: 0.9rem;">
+                            ${codewords.map(cw => {
+                                const isValid = validCodewords.includes(cw);
+                                return `<span style="color: ${isValid ? '#90EE90' : '#FFB6C1'}; margin-right: 0.5rem;">${isValid ? '✓' : '✗'} ${cw}</span>`;
+                            }).join('<br>')}
+                        </div>
+                        <div style="color: #ccc; font-size: 0.8rem;">
+                            ${latestEntry.submittedAt ? new Date(latestEntry.submittedAt).toLocaleDateString() : 'Unknown'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            tableContainer.innerHTML = html;
+            
+            console.log(`📋 Displayed ${Object.keys(entriesByEmail).length} participants with ${filteredEntries.length} total entries`);
+        }
+
+        function refreshEntries() {
+            console.log('🔄 Refreshing competition entries...');
+            loadCompetitionEntries().then(() => {
+                updateEntriesOverview();
+                showSuccess('subscriberSuccess');
+            });
+        }
+
+        function exportEntriesToCSV() {
+            if (competitionEntries.length === 0) {
+                alert('No entries to export.');
+                return;
+            }
+            
+            // Create CSV content
+            const headers = ['Name', 'Email', 'YouTube Name', 'Codeword', 'Submitted At', 'Valid Entry'];
+            const csvContent = [
+                headers.join(','),
+                ...competitionEntries.map(entry => {
+                    const isValid = validCodewords.includes(entry.codeword);
+                    return [
+                        `"${entry.name}"`,
+                        `"${entry.email}"`,
+                        `"${entry.youtubeName}"`,
+                        `"${entry.codeword}"`,
+                        `"${entry.submittedAt || 'Unknown'}"`,
+                        isValid ? 'Yes' : 'No'
+                    ].join(',');
+                })
+            ].join('\n');
+            
+            // Create and download file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `competition_entries_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('📁 CSV export completed');
+        }
+
+        function copyEntriesToClipboard() {
+            if (competitionEntries.length === 0) {
+                alert('No entries to copy.');
+                return;
+            }
+            
+            // Create formatted text
+            const text = competitionEntries.map(entry => {
+                const isValid = validCodewords.includes(entry.codeword) ? '✓' : '✗';
+                return `${entry.name} (${entry.email}) - YouTube: ${entry.youtubeName} - Codeword: ${entry.codeword} ${isValid} - Submitted: ${entry.submittedAt || 'Unknown'}`;
+            }).join('\n');
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Entries copied to clipboard!');
+                console.log('📋 Entries copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy to clipboard:', err);
+                alert('Failed to copy to clipboard. Please try the CSV export instead.');
+            });
+        }
+
+        // Override the existing loadCompetitionEntries function to also update the overview
+        const originalLoadCompetitionEntries = loadCompetitionEntries;
+        loadCompetitionEntries = async function() {
+            await originalLoadCompetitionEntries();
+            if (typeof updateEntriesOverview === 'function') {
+                updateEntriesOverview();
+            }
+        };
     </script>
 </body>
 </html> 
