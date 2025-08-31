@@ -534,17 +534,17 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         };
 
         // Load current values on page load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Admin panel loading...');
             
             // Test basic console logging
             console.log('🔧 Testing console - if you see this, console is working');
             
             try {
-                loadCurrentValues();
-                loadCompetitionEntries();
-                loadPreviousWinners();
-                loadValidCodewords(); // Load valid codewords on page load
+                await loadCurrentValues();
+                await loadCompetitionEntries();
+                await loadPreviousWinners();
+                await loadValidCodewords(); // Load valid codewords on page load
                 setupEntriesSection(); // Setup the new entries overview section
 
                 // Add event listeners after everything is loaded with error checking
@@ -1396,16 +1396,31 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         function setupEntriesSection() {
             console.log('🔄 Setting up entries overview section...');
             
-            // Add event listeners for search and filter
+            // Check if DOM elements exist
             const searchInput = document.getElementById('entrySearchInput');
             const codewordFilter = document.getElementById('codewordFilter');
+            const totalEntriesCount = document.getElementById('totalEntriesCount');
+            const entriesTable = document.getElementById('entriesTable');
             
+            console.log('🔍 DOM elements check:');
+            console.log('  - searchInput:', searchInput ? '✅ Found' : '❌ Missing');
+            console.log('  - codewordFilter:', codewordFilter ? '✅ Found' : '❌ Missing');
+            console.log('  - totalEntriesCount:', totalEntriesCount ? '✅ Found' : '❌ Missing');
+            console.log('  - entriesTable:', entriesTable ? '✅ Found' : '❌ Missing');
+            
+            // Add event listeners for search and filter
             if (searchInput) {
                 searchInput.addEventListener('input', filterEntries);
+                console.log('✅ Search input listener added');
+            } else {
+                console.error('❌ Search input element not found');
             }
             
             if (codewordFilter) {
                 codewordFilter.addEventListener('change', filterEntries);
+                console.log('✅ Codeword filter listener added');
+            } else {
+                console.error('❌ Codeword filter element not found');
             }
             
             // Initial load of entries overview
@@ -1433,11 +1448,34 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             const uniqueParticipants = new Set(competitionEntries.map(entry => entry.email.toLowerCase())).size;
             const uniqueCodewords = new Set(competitionEntries.map(entry => entry.codeword)).size;
             
-            document.getElementById('totalEntriesCount').textContent = totalEntries;
-            document.getElementById('uniqueParticipantsCount').textContent = uniqueParticipants;
-            document.getElementById('uniqueCodewordsCount').textContent = uniqueCodewords;
+            console.log(`📊 Attempting to update statistics: ${totalEntries} entries, ${uniqueParticipants} participants, ${uniqueCodewords} codewords`);
             
-            console.log(`📊 Statistics updated: ${totalEntries} entries, ${uniqueParticipants} participants, ${uniqueCodewords} codewords`);
+            const totalEntriesElement = document.getElementById('totalEntriesCount');
+            const uniqueParticipantsElement = document.getElementById('uniqueParticipantsCount');
+            const uniqueCodewordsElement = document.getElementById('uniqueCodewordsCount');
+            
+            if (totalEntriesElement) {
+                totalEntriesElement.textContent = totalEntries;
+                console.log('✅ Updated totalEntriesCount');
+            } else {
+                console.error('❌ totalEntriesCount element not found');
+            }
+            
+            if (uniqueParticipantsElement) {
+                uniqueParticipantsElement.textContent = uniqueParticipants;
+                console.log('✅ Updated uniqueParticipantsCount');
+            } else {
+                console.error('❌ uniqueParticipantsCount element not found');
+            }
+            
+            if (uniqueCodewordsElement) {
+                uniqueCodewordsElement.textContent = uniqueCodewords;
+                console.log('✅ Updated uniqueCodewordsCount');
+            } else {
+                console.error('❌ uniqueCodewordsCount element not found');
+            }
+            
+            console.log(`📊 Statistics update completed`);
         }
 
         function updateCodewordFilterOptions() {
