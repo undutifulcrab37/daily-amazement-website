@@ -649,23 +649,38 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
 
         async function loadCompetitionEntries() {
             try {
+                console.log('🔄 Starting loadCompetitionEntries...');
+                console.log('🔌 Supabase client status:', supabaseClient ? 'Available' : 'Not available');
+                
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .select('*')
                     .order('submittedat', { ascending: false });
 
+                console.log('📡 Supabase query completed');
+                console.log('📊 Raw data from Supabase:', data);
+                console.log('❌ Any errors:', error);
+
                 if (error) {
-                    console.error('Error loading entries:', error);
+                    console.error('❌ Error loading entries:', error);
+                    console.error('📋 Error details:', JSON.stringify(error, null, 2));
                     return;
                 }
 
-                competitionEntries = data.map(entry => ({
-                    name: `${entry.firstname} ${entry.lastname}`,
-                    youtubeName: entry.youtubename,
-                    email: entry.email,
-                    codeword: entry.codeword,
-                    submittedAt: entry.submittedat
-                }));
+                if (!data || data.length === 0) {
+                    console.log('⚠️ No entries found in database');
+                    competitionEntries = [];
+                } else {
+                    console.log(`✅ Found ${data.length} entries in database`);
+                    competitionEntries = data.map(entry => ({
+                        name: `${entry.firstname} ${entry.lastname}`,
+                        youtubeName: entry.youtubename,
+                        email: entry.email,
+                        codeword: entry.codeword,
+                        submittedAt: entry.submittedat
+                    }));
+                    console.log('📋 Processed entries:', competitionEntries);
+                }
 
                 updateEntryDisplay();
                 compareEntries();
