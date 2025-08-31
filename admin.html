@@ -651,7 +651,19 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             try {
                 console.log('🔄 Starting loadCompetitionEntries...');
                 console.log('🔌 Supabase client status:', supabaseClient ? 'Available' : 'Not available');
+                console.log('🔗 Supabase URL:', supabaseUrl);
                 
+                // First, let's try to list all tables to see what's available
+                console.log('📋 Attempting to query competition_entries table...');
+                
+                // Try a simple count query first
+                const { count, error: countError } = await supabaseClient
+                    .from('competition_entries')
+                    .select('*', { count: 'exact', head: true });
+                
+                console.log('📊 Table count query result:', { count, error: countError });
+                
+                // Now try the full query
                 const { data, error } = await supabaseClient
                     .from('competition_entries')
                     .select('*')
@@ -1686,6 +1698,71 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         }
 
         // Competition entries overview is now integrated directly into loadCompetitionEntries()
+        
+        // Debug function to test different table queries
+        async function testDatabaseTables() {
+            console.log('🔍 Testing database tables and queries...');
+            
+            const tablesToTest = ['competition_entries', 'entries', 'form_submissions', 'submissions'];
+            
+            for (const tableName of tablesToTest) {
+                try {
+                    console.log(`📋 Testing table: ${tableName}`);
+                    const { data, error, count } = await supabaseClient
+                        .from(tableName)
+                        .select('*', { count: 'exact' })
+                        .limit(5);
+                    
+                    if (error) {
+                        console.log(`❌ ${tableName}: ${error.message}`);
+                    } else {
+                        console.log(`✅ ${tableName}: Found ${count} rows`);
+                        if (data && data.length > 0) {
+                            console.log(`📊 Sample data from ${tableName}:`, data[0]);
+                        }
+                    }
+                } catch (err) {
+                    console.log(`💥 ${tableName}: ${err.message}`);
+                }
+            }
+            
+            // Also test the exact query from the main site
+            try {
+                console.log('🔄 Testing exact query from main site...');
+                const testData = {
+                    firstname: 'Debug',
+                    lastname: 'Test',
+                    youtubename: '@DebugTest',
+                    codeword: 'DEBUGTEST',
+                    email: 'debug@test.com',
+                    submittedat: new Date().toISOString()
+                };
+                
+                const { data: insertData, error: insertError } = await supabaseClient
+                    .from('competition_entries')
+                    .insert([testData])
+                    .select();
+                
+                if (insertError) {
+                    console.log('❌ Insert test failed:', insertError);
+                } else {
+                    console.log('✅ Insert test successful:', insertData);
+                    
+                    // Now try to read it back
+                    const { data: readData, error: readError } = await supabaseClient
+                        .from('competition_entries')
+                        .select('*')
+                        .eq('email', 'debug@test.com');
+                    
+                    console.log('📖 Read back result:', { data: readData, error: readError });
+                }
+            } catch (err) {
+                console.log('💥 Insert/read test failed:', err);
+            }
+        }
+        
+        // Add to window for console access
+        window.testDatabaseTables = testDatabaseTables;
         
         // Debug function to manually trigger overview update
         function forceUpdateEntriesOverview() {
