@@ -356,8 +356,11 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
                 <button onclick="exportEntriesToCSV()" style="background: linear-gradient(90deg, #FFD700 0%, #FFB300 100%); color: #111; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; margin-right: 1rem; font-weight: 600;">
                     <i class="fas fa-download"></i> Export to CSV
                 </button>
-                <button onclick="copyEntriesToClipboard()" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                <button onclick="copyEntriesToClipboard()" style="background: rgba(255, 255, 255, 0.1); color: #fff; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; padding: 10px 20px; cursor: pointer; margin-right: 1rem; font-weight: 600;">
                     <i class="fas fa-copy"></i> Copy to Clipboard
+                </button>
+                <button onclick="forceUpdateEntriesOverview()" style="background: rgba(255, 0, 0, 0.3); color: #FFB6C1; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-bug"></i> Debug Update
                 </button>
             </div>
         </div>
@@ -542,10 +545,18 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
             
             try {
                 await loadCurrentValues();
-                await loadCompetitionEntries();
+                await loadValidCodewords(); // Load valid codewords first
+                await loadCompetitionEntries(); // This will now call updateEntriesOverview
                 await loadPreviousWinners();
-                await loadValidCodewords(); // Load valid codewords on page load
                 setupEntriesSection(); // Setup the new entries overview section
+                
+                // Force update the overview after everything is loaded
+                setTimeout(() => {
+                    console.log('🔄 Final overview update after all data loaded...');
+                    if (typeof updateEntriesOverview === 'function') {
+                        updateEntriesOverview();
+                    }
+                }, 1000);
 
                 // Add event listeners after everything is loaded with error checking
                 const updatePrizeImageBtn = document.getElementById('updatePrizeImageBtn');
@@ -1660,6 +1671,37 @@ The Air Jordan XXXVIII is the most sustainably made Air Jordan signature shoe in
         }
 
         // Competition entries overview is now integrated directly into loadCompetitionEntries()
+        
+        // Debug function to manually trigger overview update
+        function forceUpdateEntriesOverview() {
+            console.log('🐛 DEBUG: Manually triggering entries overview update...');
+            console.log('🐛 DEBUG: competitionEntries array:', competitionEntries);
+            console.log('🐛 DEBUG: validCodewords array:', validCodewords);
+            console.log('🐛 DEBUG: DOM elements check:');
+            
+            const elements = {
+                totalEntriesCount: document.getElementById('totalEntriesCount'),
+                uniqueParticipantsCount: document.getElementById('uniqueParticipantsCount'),
+                uniqueCodewordsCount: document.getElementById('uniqueCodewordsCount'),
+                entriesTable: document.getElementById('entriesTable'),
+                entrySearchInput: document.getElementById('entrySearchInput'),
+                codewordFilter: document.getElementById('codewordFilter')
+            };
+            
+            Object.entries(elements).forEach(([name, element]) => {
+                console.log(`🐛 DEBUG: ${name}:`, element ? '✅ Found' : '❌ Missing');
+            });
+            
+            if (typeof updateEntriesOverview === 'function') {
+                console.log('🐛 DEBUG: Calling updateEntriesOverview()...');
+                updateEntriesOverview();
+            } else {
+                console.error('🐛 DEBUG: updateEntriesOverview function not found!');
+            }
+        }
+        
+        // Also add a window function for console testing
+        window.debugEntries = forceUpdateEntriesOverview;
     </script>
 </body>
 </html> 
